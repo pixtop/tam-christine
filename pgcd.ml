@@ -1,4 +1,4 @@
-let tam_pgcd = 
+let tam_pgcd =
 "__pgcd__ ; Fonction pour reduire rat
 LOAD (1) -1[LB]
 LOAD (1) -2[LB]
@@ -29,4 +29,5 @@ LOAD (1) -1[LB]
 LOAD (1) 3[LB]
 SUBR IDiv
 POP (2) 1
-RETURN (2) 2";;
+RETURN (2) 2
+";;
