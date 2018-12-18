@@ -1,0 +1,20 @@
+(jbuild_version 1)
+
+(ocamllex (lexer))
+
+(menhir
+ ((modules (parser))))
+
+(library
+ (
+  (name rat)
+  (libraries (unix))
+  (inline_tests)
+  (modules (ast code compilateur exceptions lexer parser passe passeCodeRatToTam passePlacementRat passeTdsRat PasseTypeRat
+    Tds TestPlacement testTDS testTam TestType Type pgcd))
+  (preprocess (pps (ppx_inline_test ppx_expect)))
+ )
+)
+
+(executable
+    ((name main) (libraries (rat)) (modules (main))))

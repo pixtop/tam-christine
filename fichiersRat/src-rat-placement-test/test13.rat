@@ -1,0 +1,7 @@
+rat f (bool b rat r int i) {
+    return r;
+}
+
+
+main {
+}
