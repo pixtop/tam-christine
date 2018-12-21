@@ -72,7 +72,7 @@ is :
 | i1=i li=is              {i1::li}
 
 i :
-| t=typ n=ID EQUAL e1=e PV          {Declaration (t,n,e1)}
+| t=typ a=af EQUAL e1=e PV          {Declaration (t,a,e1)}
 | a=af EQUAL e1=e PV                {Affectation (a,e1)}
 | CONST n=ID EQUAL e=ENTIER PV      {Constante (n,e)}
 | PRINT e1=e PV                     {Affichage (e1)}

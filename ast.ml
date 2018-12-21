@@ -91,7 +91,8 @@ type expression =
 type bloc = instruction list
 and instruction =
   (* Déclaration de variable représentée par son type, son nom et l'expression d'initialisation *)
-  | Declaration of typ * string * expression
+  (* | Declaration of typ * string * expression *)
+  | Declaration of typ * affectable * expression
   (* Affectation d'une variable représentée par son nom/pointeur et la nouvelle valeur affectée *)
   | Affectation of affectable * expression
   (* Déclaration d'une constante représentée par son nom et sa valeur (entier) *)
@@ -155,7 +156,7 @@ struct
   (* Conversion des instructions *)
   let rec string_of_instruction i =
     match i with
-    | Declaration (t, n, e) -> "Declaration  : "^(string_of_type t)^" "^n^" = "^(string_of_expression e)^"\n"
+    | Declaration (t, a, e) -> "Declaration  : "^(string_of_type t)^" "^(string_of_affectable a)^" = "^(string_of_expression e)^"\n"
     | Affectation (a,e) ->  "Affectation  : "^(string_of_affectable a)^"= "^(string_of_expression e)^"\n"
     | Constante (n,i) ->  "Constante  : "^n^" = "^(string_of_int i)^"\n"
     | Affichage e ->  "Affichage  : "^(string_of_expression e)^"\n"
@@ -189,6 +190,13 @@ end
 module AstTds =
 struct
 
+  (* Affectations existantes dans notre langage *)
+  (* ~ affectation de l'AST syntaxique où les noms des identificateurs ont synthétisé
+  remplacés par les informations associées aux identificateurs *)
+  type affectable =
+    | Valeur of affectable
+    | Ident of Tds.info_ast (* le nom de l'identifiant est remplacé par ses informations *)
+
   (* Expressions existantes dans notre langage *)
   (* ~ expression de l'AST syntaxique où les noms des identifiants ont été
   remplacés par les informations associées aux identificateurs *)
@@ -197,11 +205,15 @@ struct
     | Rationnel of expression * expression
     | Numerateur of expression
     | Denominateur of expression
-    | Ident of Tds.info_ast (* le nom de l'identifiant est remplacé par ses informations *)
+    (* | Ident of Tds.info_ast (* le nom de l'identifiant est remplacé par ses informations *) *)
     | True
     | False
     | Entier of int
     | Binaire of AstSyntax.binaire * expression * expression
+    | Acces of affectable
+    | Vide
+    | Adresse of string
+    | Allocation of typ
 
   (* instructions existantes dans notre langage *)
   (* ~ instruction de l'AST syntaxique où les noms des identifiants ont été
@@ -209,8 +221,10 @@ struct
   + suppression de nœuds (const) *)
   type bloc = instruction list
   and instruction =
-    | Declaration of typ * expression * Tds.info_ast (* le nom de l'identifiant est remplacé par ses informations *)
-    | Affectation of  expression * Tds.info_ast (* le nom de l'identifiant est remplacé par ses informations *)
+    (* | Declaration of typ * expression * Tds.info_ast (* le nom de l'identifiant est remplacé par ses informations *) *)
+    | Declaration of typ * affectable * expression
+    (* | Affectation of  expression * Tds.info_ast (* le nom de l'identifiant est remplacé par ses informations *) *)
+    | Affectation of affectable * expression
     | Affichage of expression
     | Conditionnelle of expression * bloc * bloc
     | TantQue of expression * bloc
