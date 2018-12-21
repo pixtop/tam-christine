@@ -113,4 +113,4 @@ cp :
 
 af :
 | PO MULT a=af PF   {Valeur (a)}
-| n=ID              {Variable (n)}
+| n=ID              {Ident (n)}

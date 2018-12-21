@@ -3,6 +3,7 @@ open Type
 (* Interface des arbres abstraits *)
 module type Ast =
 sig
+   type affectable
    type expression
    type instruction
    type fonction
@@ -46,18 +47,25 @@ struct
 (* Opérateurs binaires de Rat *)
 type binaire = Plus | Mult | Equ | Inf
 
+(* Affectable de Rat *)
+type affectable =
+  (* la valeur de l'affectable peut être lui même un affectable (pointeur) *)
+  | Valeur of affectable
+  (* le nom de l'affectable *)
+  | Ident of string
+
 (* Expressions de Rat *)
 type expression =
   (* Appel de fonction représenté par le nom de la fonction et la liste des paramètres réels *)
-  | AppelFonction of string * expression list 
+  | AppelFonction of string * expression list
   (* Rationnel représenté par le numérateur et le dénominateur *)
-  | Rationnel of expression * expression 
+  | Rationnel of expression * expression
   (* Accès au numérateur d'un rationnel *)
   | Numerateur of expression
   (* Accès au dénominateur d'un rationnel *)
   | Denominateur of expression
   (* Accès à un identifiant représenté par son nom *)
-  | Ident of string
+  (* | Ident of string *)
   (* Booléen vrai *)
   | True
   (* Booléen faux *)
@@ -66,14 +74,22 @@ type expression =
   | Entier of int
   (* Opération binaire représentée par l'opérateur, l'opérande gauche et l'opérande droite *)
   | Binaire of binaire * expression * expression
+  (* Accès à la variable en mémoire du pointeur *)
+  | Valeur of affectable
+  (* Pointeur null *)
+  | Vide
+  (* Accès à l'adresse du pointeur *)
+  | Adresse of string
+  (* Allocation d'un pointeur de la taille du typ *)
+  | Allocation of typ
 
 (* Instructions de Rat *)
 type bloc = instruction list
 and instruction =
   (* Déclaration de variable représentée par son type, son nom et l'expression d'initialisation *)
   | Declaration of typ * string * expression
-  (* Affectation d'une variable représentée par son nom et la nouvelle valeur affectée *)
-  | Affectation of string * expression
+  (* Affectation d'une variable représentée par son nom/pointeur et la nouvelle valeur affectée *)
+  | Affectation of affectable * expression
   (* Déclaration d'une constante représentée par son nom et sa valeur (entier) *)
   | Constante of string * int
   (* Affichage d'une expression *)
@@ -160,7 +176,7 @@ module AstTds =
 struct
 
   (* Expressions existantes dans notre langage *)
-  (* ~ expression de l'AST syntaxique où les noms des identifiants ont été 
+  (* ~ expression de l'AST syntaxique où les noms des identifiants ont été
   remplacés par les informations associées aux identificateurs *)
   type expression =
     | AppelFonction of string * expression list * Tds.info_ast (* le nom de la fonction est gardé car il sera nécessaire au moment de la génération de code*)
@@ -174,8 +190,8 @@ struct
     | Binaire of AstSyntax.binaire * expression * expression
 
   (* instructions existantes dans notre langage *)
-  (* ~ instruction de l'AST syntaxique où les noms des identifiants ont été 
-  remplacés par les informations associées aux identificateurs 
+  (* ~ instruction de l'AST syntaxique où les noms des identifiants ont été
+  remplacés par les informations associées aux identificateurs
   + suppression de nœuds (const) *)
   type bloc = instruction list
   and instruction =
@@ -196,7 +212,7 @@ struct
   type programme = Programme of fonction list * bloc
 
 end
-    
+
 
 (***********************************)
 (* AST après la phase de typage *)
