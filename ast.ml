@@ -19,6 +19,10 @@ sig
 (* transforme une expression en chaîne de caractère *)
 val string_of_expression : A.expression -> string
 
+(* string_of_affectable : affectable -> string *)
+(* transforme un affectable en chaîne de caractère *)
+val string_of_affectable : A.affectable -> string
+
 (* string_of_instruction :  instruction -> string *)
 (* transforme une instruction en chaîne de caractère *)
 val string_of_instruction : A.instruction -> string
@@ -75,7 +79,7 @@ type expression =
   (* Opération binaire représentée par l'opérateur, l'opérande gauche et l'opérande droite *)
   | Binaire of binaire * expression * expression
   (* Accès à la variable en mémoire du pointeur *)
-  | Valeur of affectable
+  | Acces of affectable
   (* Pointeur null *)
   | Vide
   (* Accès à l'adresse du pointeur *)
@@ -125,6 +129,12 @@ struct
     | Equ -> "= "
     | Inf -> "< "
 
+  (* Conversion des affectables *)
+  let rec string_of_affectable af =
+    match af with
+    | Valeur a -> "(* "^(string_of_affectable a)^") "
+    | Ident n -> n^" "
+
   (* Conversion des expressions *)
   let rec string_of_expression e =
     match e with
@@ -132,17 +142,21 @@ struct
     | Rationnel (e1,e2) -> "["^(string_of_expression e1)^"/"^(string_of_expression e2)^"] "
     | Numerateur e1 -> "num "^(string_of_expression e1)^" "
     | Denominateur e1 ->  "denom "^(string_of_expression e1)^" "
-    | Ident n -> n^" "
+    (* | Ident n -> n^" " *)
     | True -> "true "
     | False -> "false "
     | Entier i -> (string_of_int i)^" "
     | Binaire (b,e1,e2) -> (string_of_expression e1)^(string_of_binaire b)^(string_of_expression e2)^" "
+    | Acces a -> (string_of_affectable a)
+    | Vide -> "null "
+    | Allocation t -> "(new "^(string_of_type t)^") "
+    | Adresse n -> "& "^n^" "
 
   (* Conversion des instructions *)
   let rec string_of_instruction i =
     match i with
     | Declaration (t, n, e) -> "Declaration  : "^(string_of_type t)^" "^n^" = "^(string_of_expression e)^"\n"
-    | Affectation (n,e) ->  "Affectation  : "^n^" = "^(string_of_expression e)^"\n"
+    | Affectation (a,e) ->  "Affectation  : "^(string_of_affectable a)^"= "^(string_of_expression e)^"\n"
     | Constante (n,i) ->  "Constante  : "^n^" = "^(string_of_int i)^"\n"
     | Affichage e ->  "Affichage  : "^(string_of_expression e)^"\n"
     | Conditionnelle (c,t,e) ->  "Conditionnelle  : IF "^(string_of_expression c)^"\n"^

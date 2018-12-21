@@ -105,7 +105,7 @@ e :
 | a=af                    {Valeur (a)}
 | NULL                    {Vide}
 | PO NEW t=typ PF         {Allocation (t)}
-| AND n=id                {Adresse (n)}
+| AND n=ID                {Adresse (n)}
 
 cp :
 |               {[]}
