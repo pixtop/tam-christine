@@ -1,12 +1,12 @@
 (* Interface définissant une passe *)
 module type Passe =
-sig 
+sig
   (* type des AST en entrée de la passe *)
   type t1
   (* type des AST en sortie de la passe *)
   type t2
 
-  (* fonction d'analyse qui tranforme un AST de type t1 
+  (* fonction d'analyse qui tranforme un AST de type t1
   en un AST de type t2 en réalisant des vérifications *)
   val analyser : t1 -> t2
 end
@@ -81,22 +81,27 @@ struct
   type t1 = Ast.AstPlacement.programme
   type t2 = string
 
+  let rec analyser_affectable af =
+    match af with
+    | Ast.AstType.Valeur(a) -> analyser_affectable a
+    | Ast.AstType.Ident (ia) ->
+      begin
+        match Tds.info_ast_to_info ia with
+        | InfoVar (_,d,r) -> (string_of_int d)^"["^r^"]"
+        | _ -> ""
+      end
+
   (* Renvoie l'adresse quand l'expression est l'utilisation d'un identifiant *)
   (* Astuce pour afficher le placement des paramètres puisqu'on n'a plus la liste des paramètres *)
   let analyser_expression e =
     match e with
-    | Ast.AstType.Ident info -> 
-      begin
-      match Tds.info_ast_to_info info with
-      | InfoVar (_,d,r) -> (string_of_int d)^"["^r^"]"
-      | _ -> ""
-      end
+    | Ast.AstType.Acces af -> analyser_affectable af
     | _ -> ""
 
   (* Renvoie l'adresse d'une variable dans le cas d'une déclaration *)
-  let rec analyser_instruction i = 
+  let rec analyser_instruction i =
     match i with
-    | Ast.AstType.Declaration (_,info) -> 
+    | Ast.AstType.Declaration (_,info) ->
       begin
         match Tds.info_ast_to_info info with
         | InfoVar (_,d,r) -> (string_of_int d)^"["^r^"]"
