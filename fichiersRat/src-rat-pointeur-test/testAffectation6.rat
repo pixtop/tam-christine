@@ -2,5 +2,5 @@ main {
   rat *px = (new rat);
   int *py = (new int);
   (*py) = 4;
-  px = py
+  px = py;
 }

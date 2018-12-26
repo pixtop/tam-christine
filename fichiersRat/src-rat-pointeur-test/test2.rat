@@ -1,7 +1,7 @@
 main {
   int **ppx = (new int *);
   (*(*ppx)) = 4;
-  int py = (new int);
+  int *py = (new int);
   (*py) = 5;
   (*ppx) = py;
   print (*(*ppx));
