@@ -24,10 +24,15 @@ let est_compatible_list lt1 lt2 =
     List.for_all2 est_compatible lt1 lt2
   with Invalid_argument _ -> false
 
-let rec getTaille t =
+let getTaille t =
   match t with
   | Int -> 1
   | Bool -> 1
   | Rat -> 2
-  | Pt(gt) -> getTaille gt (* à vérifier *)
+  | Pt _ -> 1 (* à vérifier *)
   | Undefined -> 0
+
+let rec getTaillePt t =
+  match t with
+  | Pt typ -> getTaillePt typ
+  | _ -> getTaille t
