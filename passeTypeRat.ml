@@ -10,6 +10,22 @@ struct
   type t1 = Ast.AstTds.programme
   type t2 = Ast.AstType.programme
 
+let rec analyse_type_affectable af =
+  match af with
+  | AstTds.Valeur(a) ->
+    let (ta, afa) = analyse_type_affectable a in
+      begin
+        match ta with
+        | Pt(t) -> (t, Valeur(afa))
+        | _ -> raise PasUnPointeur
+      end
+  | AstTds.Ident(ia) ->
+    begin
+      match info_ast_to_info ia with
+      | InfoVar (t,_,_) -> (t, Ident(ia))
+      | InfoConst _ -> (Int, Ident(ia))
+      | _ -> raise ErreurInattendue
+    end
 
 (* analyse_type_expression : Asttds.expression -> Asttype.expression *)
 (* Paramètre e : l'expression à analyser *)
@@ -49,18 +65,19 @@ let rec analyse_type_expression e =
       if typ = Rat then
         (Int, Denominateur(v))
       else raise (TypeInattendu(typ, Rat))
-  | AstTds.Ident(ia) ->
+  (* | AstTds.Ident(ia) ->
     begin
       match info_ast_to_info ia with
       | InfoConst(_) -> (Int, Ident(ia))
       | InfoVar(typ, _, _) -> (typ, Ident(ia))
       | InfoFun(_,_) -> raise ErreurInattendue
-    end
+    end *)
   | AstTds.True -> (Bool, True)
   | AstTds.False -> (Bool, False)
   | AstTds.Entier(i) -> (Int, Entier(i))
   | AstTds.Binaire(b, e1, e2) ->
-    let (t1,v1) = analyse_type_expression e1 and (t2,v2) = analyse_type_expression e2 in
+    let (t1,v1) = analyse_type_expression e1
+      and (t2,v2) = analyse_type_expression e2 in
     begin
       match b with
       | Plus ->
@@ -86,6 +103,16 @@ let rec analyse_type_expression e =
           (Bool, Binaire(Inf, v1, v2))
         else raise (TypeBinaireInattendu(Inf, t1, t2))
     end
+  | AstTds.Acces(af) -> let (t,afa) = analyse_type_affectable af in (t, Acces(afa))
+  | AstTds.Vide -> (Undefined, Vide)
+  | AstTds.Adresse(ia) ->
+    begin
+      match info_ast_to_info ia with
+      | InfoVar(t,_,_) -> (Pt(t), Adresse(ia))
+      | InfoConst _ -> (Pt(Int), Adresse(ia))
+      | _ -> raise ErreurInattendue
+    end
+  | AstTds.Allocation(t) -> (Pt(t), Allocation(t))
 
 
 (* analyse_type_instruction : Asttds.instruction -> Asttype.instruction *)
@@ -101,15 +128,16 @@ let rec analyse_type_instruction i =
         if te = t then
           Declaration(ea, ia)
         else raise (TypeInattendu(te, t))
-  | AstTds.Affectation(e, ia) ->
-    let (te,ea) = analyse_type_expression e in
-      begin
-      match info_ast_to_info ia with
-      | InfoVar(t,_,_) ->
-        if t = te then Affectation(ea, ia)
-        else raise (TypeInattendu(te, t))
-      | _ -> raise ErreurInattendue
-      end
+  | AstTds.Affectation(af, e) ->
+    let (taf, afa) = analyse_type_affectable af in
+      let (te, ea) = analyse_type_expression e in
+        begin
+          match taf, te with
+          | Pt _ , Undefined -> Affectation(afa, ea)
+          | _ , _ ->
+            if taf = te then Affectation(afa, ea)
+            else raise (TypeInattendu(te, taf))
+        end
   | AstTds.Affichage(e) ->
     let (te, ea) = analyse_type_expression e in
       begin
@@ -117,7 +145,7 @@ let rec analyse_type_instruction i =
         | Bool -> AffichageBool(ea)
         | Int -> AffichageInt(ea)
         | Rat -> AffichageRat(ea)
-        | Undefined -> raise ErreurInattendue
+        | _ -> AffichagePt(ea)
       end
   | AstTds.Conditionnelle(e,tb,eb) ->
     let (te, ea) = analyse_type_expression e in
