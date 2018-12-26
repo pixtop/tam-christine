@@ -72,7 +72,7 @@ is :
 | i1=i li=is              {i1::li}
 
 i :
-| t=typ a=af EQUAL e1=e PV          {Declaration (t,a,e1)}
+| t=typ id=ID EQUAL e1=e PV          {Declaration (t,id,e1)}
 | a=af EQUAL e1=e PV                {Affectation (a,e1)}
 | CONST n=ID EQUAL e=ENTIER PV      {Constante (n,e)}
 | PRINT e1=e PV                     {Affichage (e1)}
@@ -87,7 +87,7 @@ typ :
 | BOOL    {Bool}
 | INT     {Int}
 | RAT     {Rat}
-| t=typ MULT {Pt (t)}
+| t=typ MULT {Pt t}
 
 e :
 | CALL n=ID PO lp=cp PF   {AppelFonction (n,lp)}
@@ -102,15 +102,15 @@ e :
 | PO e1=e MULT e2=e PF    {Binaire (Mult,e1,e2)}
 | PO e1=e EQUAL e2=e PF   {Binaire (Equ,e1,e2)}
 | PO e1=e INF e2=e PF     {Binaire (Inf,e1,e2)}
-| a=af                    {Valeur (a)}
+| a=af                    {Acces a}
 | NULL                    {Vide}
 | PO NEW t=typ PF         {Allocation (t)}
-| AND n=ID                {Adresse (n)}
+| AND n=ID                {Adresse n}
 
 cp :
 |               {[]}
 | e1=e le=cp    {e1::le}
 
 af :
-| PO MULT a=af PF   {Valeur (a)}
-| n=ID              {Ident (n)}
+| PO MULT a=af PF   {Valeur a}
+| n=ID              {Ident n}
