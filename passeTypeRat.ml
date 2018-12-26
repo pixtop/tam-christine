@@ -35,17 +35,14 @@ en une expression de type Asttype.expression *)
 let rec analyse_type_expression e =
   match e with
   | AstTds.AppelFonction(n, args, ia) ->
-    let targs = List.map analyse_type_expression args in
+    let (typargs, targs) = List.split (List.map analyse_type_expression args) in
       begin
       match info_ast_to_info ia with
       | InfoFun(typfun, typlist) ->
-          let valid =
-            try List.for_all2 (fun (x,_) y -> x = y) targs typlist
-            with Invalid_argument(_) -> false in
-              if valid then
-                (typfun, AppelFonction(n, List.map (fun (x,y) -> y) targs, ia))
-              else
-                raise (TypesParametresInattendus(List.map (fun (x,y) -> x) targs, typlist))
+        if est_compatible_list typargs typlist then
+          (typfun, AppelFonction(n, targs, ia))
+        else
+          raise (TypesParametresInattendus(typargs, typlist))
       | _ -> raise ErreurInattendue
       end
   | AstTds.Rationnel(e1, e2) ->
@@ -131,13 +128,8 @@ let rec analyse_type_instruction i =
   | AstTds.Affectation(af, e) ->
     let (taf, afa) = analyse_type_affectable af in
       let (te, ea) = analyse_type_expression e in
-        begin
-          match taf, te with
-          | Pt _ , Undefined -> Affectation(afa, ea)
-          | _ , _ ->
-            if taf = te then Affectation(afa, ea)
-            else raise (TypeInattendu(te, taf))
-        end
+        if est_compatible taf te then Affectation(afa, ea)
+        else raise (TypeInattendu(te, taf))
   | AstTds.Affichage(e) ->
     let (te, ea) = analyse_type_expression e in
       begin
