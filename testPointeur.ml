@@ -60,3 +60,9 @@ let%test_unit "testAffectation10" =
     in raise ErreurNonDetectee
   with
   | TypeInattendu(Undefined, Int) -> ()
+
+let%test_unit "testUtilisation1" =
+  let _ = compiler "../../fichiersRat/src-rat-pointeur-test/testUtilisation1.rat" in ()
+
+let%test_unit "testUtilisation2" =
+  let _ = compiler "../../fichiersRat/src-rat-pointeur-test/testUtilisation2.rat" in ()
