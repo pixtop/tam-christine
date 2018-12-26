@@ -1,0 +1,5 @@
+main {
+  bool *px = (new bool);
+  (*px) = true;
+  px = null;
+}

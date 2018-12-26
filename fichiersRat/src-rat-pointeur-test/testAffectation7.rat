@@ -1,0 +1,6 @@
+main {
+  rat *px = (new int);
+  int *py = (new int);
+  (*py) = 4;
+  (*px) = ((*py)+2);
+}
