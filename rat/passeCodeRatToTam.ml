@@ -109,8 +109,6 @@ struct
           (String.concat "\n" ((analyse_code_expression e)::"CALL (ST) ROut"::[]), pop_size)
         | AstType.AffichageBool(e) ->
           (String.concat "\n" ((analyse_code_expression e)::"SUBR BOut"::[]), pop_size)
-        | AstType.AffichagePt(e) ->
-          (String.concat "\n" ((analyse_code_expression e)::"SUBR IOut"::[]), pop_size)
         | AstType.Conditionnelle(e, b1, b2) ->
           (String.concat "\n" ((analyse_code_expression e)::("JUMPIF (1) " ^ etiq1)::
             (add_pop (analyse_code_bloc b2))::("JUMP " ^ etiq2)::etiq1::

@@ -143,7 +143,6 @@ struct
     | Rationnel (e1,e2) -> "["^(string_of_expression e1)^"/"^(string_of_expression e2)^"] "
     | Numerateur e1 -> "num "^(string_of_expression e1)^" "
     | Denominateur e1 ->  "denom "^(string_of_expression e1)^" "
-    (* | Ident n -> n^" " *)
     | True -> "true "
     | False -> "false "
     | Entier i -> (string_of_int i)^" "
@@ -264,7 +263,6 @@ type expression =
   | Rationnel of expression * expression
   | Numerateur of expression
   | Denominateur of expression
-  (* | Ident of Tds.info_ast *)
   | True
   | False
   | Entier of int
@@ -284,7 +282,6 @@ type bloc = instruction list
   | AffichageInt of expression
   | AffichageRat of expression
   | AffichageBool of expression
-  | AffichagePt of expression
   | Conditionnelle of expression * bloc * bloc
   | TantQue of expression * bloc
   | Empty (* les nœuds ayant disparus: Const *)
@@ -303,6 +300,8 @@ end
 module AstPlacement =
 struct
 
+(* Affectables existants dans notre langage *)
+(* = affectable de AstType  *)
 type affectable = AstType.affectable
 
 (* Expressions existantes dans notre langage *)

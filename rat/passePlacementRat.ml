@@ -20,10 +20,10 @@ let rec analyse_placement_instruction dp reg i =
   match i with
   | AstType.Declaration(_,ia) ->
     begin
-      match info_ast_to_info ia with
-      | InfoVar(t,_,_) ->
-          let _ = modifier_adresse_info dp reg ia in getTaille t + dp
-      | _ -> dp
+    match info_ast_to_info ia with
+    | InfoVar(t,_,_) ->
+        let _ = modifier_adresse_info dp reg ia in getTaille t + dp
+    | _ -> dp
     end
   | AstType.Conditionnelle(_,tb,eb) ->
       let _ = analyse_placement_bloc dp reg tb and
