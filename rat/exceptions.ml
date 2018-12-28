@@ -11,6 +11,7 @@ exception MauvaiseUtilisationIdentifiant of string
 exception TypeInattendu of typ * typ
 exception TypesParametresInattendus of typ list * typ list
 exception TypeBinaireInattendu of binaire * typ * typ (* les types sont les types réels non compatible avec les signatures connues de l'opérateur *)
+exception TypeAffichageInattendu of typ (* le type est le type réel non compatible avec la signatures connue de l'affichage *)
 
 (* pour le projet *)
 exception PasUnPointeur (* * sur quelque chose qui n'est pas un pointeur *)
