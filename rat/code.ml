@@ -3,7 +3,12 @@ let getEtiquette =
   let num = ref 0 in
   fun () ->
     num := (!num)+1 ;
-    "label"^((string_of_int (!num)))
+    "label"^((string_of_int (!num)))^"\n"
+
+(* Ajout de POP pour variables locales *)
+let addPop (code, pop) depl =
+  if pop > 0 then code ^ Printf.sprintf "POP (%d) %d\n" depl pop
+  else code
 
 (* Entête des fichiers Rat  contenant :
 - un saut vers le programme principal

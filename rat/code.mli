@@ -3,6 +3,12 @@
 (* Chaque appel donne une étiquette différente *)
 val getEtiquette : unit -> string ;;
 
+(* addPop : string * int -> int -> string *)
+(* Ajout de POP pour variables locales *)
+(* Premier paramètre : le bloc de code et le nombre de pop *)
+(* Second paramètre : le déplacement dans le cas d'une fonction *)
+val addPop : string * int -> int -> string
+
 (* getEntete : unit -> string *)
 (* Renvoie ce qui doit être mis en entête du fichier TAM *)
 val getEntete : unit -> string ;;
