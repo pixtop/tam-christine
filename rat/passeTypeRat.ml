@@ -10,21 +10,29 @@ struct
   type t1 = Ast.AstTds.programme
   type t2 = Ast.AstType.programme
 
+
+(* analyse_type_affectable : Asttds.affectable -> Asttype.affectable *)
+(* Paramètre af : l'affectable à analyser *)
+(* Vérifie la bonne utilisation des types et tranforme l'expression
+en une expression de type Asttype.affectable *)
+(* Erreur si mauvaise utilisation des types *)
 let rec analyse_type_affectable af =
   match af with
   | AstTds.Valeur(a) ->
-    let (ta, afa) = analyse_type_affectable a in
+    (* acces récursif au valeur pointée *)
+    let (typ, at) = analyse_type_affectable a in
       begin
-        match ta with
-        | Pt(t) -> (t, Valeur(afa))
-        | _ -> raise PasUnPointeur
+      (* vérification + construction chaînée de Asttype.affectable *)
+      match typ with
+      | Pt(t) -> (t, Valeur(at))
+      | _ -> raise PasUnPointeur
       end
   | AstTds.Ident(ia) ->
     begin
-      match info_ast_to_info ia with
-      | InfoVar (t,_,_) -> (t, Ident(ia))
-      | InfoConst _ -> (Int, Ident(ia))
-      | _ -> raise ErreurInattendue
+    match info_ast_to_info ia with
+    | InfoVar (t,_,_) -> (t, Ident(ia))
+    | InfoConst _ -> (Int, Ident(ia))
+    | _ -> raise ErreurInattendue
     end
 
 (* analyse_type_expression : Asttds.expression -> Asttype.expression *)
@@ -41,34 +49,23 @@ let rec analyse_type_expression e =
       | InfoFun(typfun, typlist) ->
         if est_compatible_list typargs typlist then
           (typfun, AppelFonction(n, targs, ia))
-        else
-          raise (TypesParametresInattendus(typargs, typlist))
+        else raise (TypesParametresInattendus(typargs, typlist))
       | _ -> raise ErreurInattendue
       end
   | AstTds.Rationnel(e1, e2) ->
     let (t1,v1) = analyse_type_expression e1 and (t2, v2) = analyse_type_expression e2 in
       if t1 = Int then
-        if t2 = Int then
-          (Rat, Rationnel(v1,v2))
+        if t2 = Int then (Rat, Rationnel(v1,v2))
         else raise (TypeInattendu(t2, Int))
       else raise (TypeInattendu(t1, Int))
   | AstTds.Numerateur(e) ->
     let (typ, v) = analyse_type_expression e in
-      if typ = Rat then
-        (Int, Numerateur(v))
+      if typ = Rat then (Int, Numerateur(v))
       else raise (TypeInattendu(typ, Rat))
   | AstTds.Denominateur(e) ->
     let (typ, v) = analyse_type_expression e in
-      if typ = Rat then
-        (Int, Denominateur(v))
+      if typ = Rat then (Int, Denominateur(v))
       else raise (TypeInattendu(typ, Rat))
-  (* | AstTds.Ident(ia) ->
-    begin
-      match info_ast_to_info ia with
-      | InfoConst(_) -> (Int, Ident(ia))
-      | InfoVar(typ, _, _) -> (typ, Ident(ia))
-      | InfoFun(_,_) -> raise ErreurInattendue
-    end *)
   | AstTds.True -> (Bool, True)
   | AstTds.False -> (Bool, False)
   | AstTds.Entier(i) -> (Int, Entier(i))
@@ -76,38 +73,38 @@ let rec analyse_type_expression e =
     let (t1,v1) = analyse_type_expression e1
       and (t2,v2) = analyse_type_expression e2 in
     begin
-      match b with
-      | Plus ->
-        if t1 = Int && t2 = Int then
-         (Int, Binaire(PlusInt, v1, v2))
-        else if t1 = Rat && t2 = Rat then
-         (Rat, Binaire(PlusRat, v1, v2))
-        else raise (TypeBinaireInattendu(Plus, t1, t2))
-      | Mult ->
-        if t1 = Int && t2 = Int then
-         (Int, Binaire(MultInt, v1, v2))
-        else if t1 = Rat && t2 = Rat then
-         (Rat, Binaire(MultRat, v1, v2))
-        else raise (TypeBinaireInattendu(Mult, t1, t2))
-      | Equ ->
-        if t1 = Int && t2 = Int then
-         (Bool, Binaire(EquInt, v1, v2))
-        else if t1 = Bool && t2 = Bool then
-         (Bool, Binaire(EquBool, v1, v2))
-        else raise (TypeBinaireInattendu(Equ, t1, t2))
-      | Inf ->
-        if t1 = Int && t2 = Int then
-          (Bool, Binaire(Inf, v1, v2))
-        else raise (TypeBinaireInattendu(Inf, t1, t2))
+    match b with
+    | Plus ->
+      if t1 = Int && t2 = Int then
+       (Int, Binaire(PlusInt, v1, v2))
+      else if t1 = Rat && t2 = Rat then
+       (Rat, Binaire(PlusRat, v1, v2))
+      else raise (TypeBinaireInattendu(Plus, t1, t2))
+    | Mult ->
+      if t1 = Int && t2 = Int then
+       (Int, Binaire(MultInt, v1, v2))
+      else if t1 = Rat && t2 = Rat then
+       (Rat, Binaire(MultRat, v1, v2))
+      else raise (TypeBinaireInattendu(Mult, t1, t2))
+    | Equ ->
+      if t1 = Int && t2 = Int then
+       (Bool, Binaire(EquInt, v1, v2))
+      else if t1 = Bool && t2 = Bool then
+       (Bool, Binaire(EquBool, v1, v2))
+      else raise (TypeBinaireInattendu(Equ, t1, t2))
+    | Inf ->
+      if t1 = Int && t2 = Int then
+        (Bool, Binaire(Inf, v1, v2))
+      else raise (TypeBinaireInattendu(Inf, t1, t2))
     end
   | AstTds.Acces(af) -> let (t,afa) = analyse_type_affectable af in (t, Acces(afa))
   | AstTds.Vide -> (Undefined, Vide)
   | AstTds.Adresse(ia) ->
     begin
-      match info_ast_to_info ia with
-      | InfoVar(t,_,_) -> (Pt(t), Adresse(ia))
-      | InfoConst _ -> (Pt(Int), Adresse(ia))
-      | _ -> raise ErreurInattendue
+    match info_ast_to_info ia with
+    | InfoVar(t,_,_) -> (Pt(t), Adresse(ia))
+    | InfoConst _ -> (Pt(Int), Adresse(ia))
+    | _ -> raise ErreurInattendue
     end
   | AstTds.Allocation(t) -> (Pt(t), Allocation(t))
 
@@ -137,7 +134,7 @@ let rec analyse_type_instruction i =
         | Bool -> AffichageBool(ea)
         | Int -> AffichageInt(ea)
         | Rat -> AffichageRat(ea)
-        | _ -> AffichagePt(ea)
+        | _ -> raise (TypeAffichageInattendu(te))
       end
   | AstTds.Conditionnelle(e,tb,eb) ->
     let (te, ea) = analyse_type_expression e in
@@ -182,6 +179,7 @@ en un programme de type Asttype.ast *)
 (* Erreur si mauvaise utilisation des types *)
 let analyser (AstTds.Programme(fonctions, prog)) =
   let fcts = List.map analyse_type_fonction fonctions in
-    let blc = analyse_type_bloc prog in Programme(fcts, blc)
+    let blc = analyse_type_bloc prog in
+      Programme(fcts, blc)
 
 end
