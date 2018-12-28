@@ -18,7 +18,7 @@ struct
 (* Ajoute le déplacement et le registre dans la Tds de l'instruction *)
 let rec analyse_placement_instruction dp reg i =
   match i with
-  | AstType.Declaration(e,ia) ->
+  | AstType.Declaration(_,ia) ->
     begin
       match info_ast_to_info ia with
       | InfoVar(t,_,_) ->

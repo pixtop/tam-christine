@@ -1,7 +1,7 @@
 open Compilateur
 
 (* Changer le chemin d'accès du jar. *)
-let runtamcmde = "java -jar ../../runtam.jar"
+let runtamcmde = "java -jar ../../../runtam.jar"
 
 (* read up to maxlen characters from the input channel. *)
 let load_chan ic =
@@ -52,66 +52,65 @@ let runtam ratfile =
 
 
 let%expect_test "testprintint" =
-  runtam "../../fichiersRat/src-rat-tam-test/testprintint.rat";
+  runtam "../../../fichiersRat/src-rat-tam-test/testprintint.rat";
   [%expect{| 42 |}]
 
 let%expect_test "testprintbool" =
-  runtam "../../fichiersRat/src-rat-tam-test/testprintbool.rat";
+  runtam "../../../fichiersRat/src-rat-tam-test/testprintbool.rat";
   [%expect{| true |}]
 
 let%expect_test "testprintrat" =
-   runtam "../../fichiersRat/src-rat-tam-test/testprintrat.rat";
+   runtam "../../../fichiersRat/src-rat-tam-test/testprintrat.rat";
    [%expect{| [4/5] |}]
 
 let%expect_test "testaddint" =
-  runtam "../../fichiersRat/src-rat-tam-test/testaddint.rat";
+  runtam "../../../fichiersRat/src-rat-tam-test/testaddint.rat";
   [%expect{| 42 |}]
 
 let%expect_test "testaddrat" =
-  runtam "../../fichiersRat/src-rat-tam-test/testaddrat.rat";
+  runtam "../../../fichiersRat/src-rat-tam-test/testaddrat.rat";
   [%expect{| [7/6] |}]
 
 let%expect_test "testmultint" =
-  runtam "../../fichiersRat/src-rat-tam-test/testmultint.rat";
+  runtam "../../../fichiersRat/src-rat-tam-test/testmultint.rat";
   [%expect{| 440 |}]
 
 let%expect_test "testmultrat" =
-  runtam "../../fichiersRat/src-rat-tam-test/testmultrat.rat";
+  runtam "../../../fichiersRat/src-rat-tam-test/testmultrat.rat";
   [%expect{| [14/3] |}]
 
 let%expect_test "testnum" =
-  runtam "../../fichiersRat/src-rat-tam-test/testnum.rat";
+  runtam "../../../fichiersRat/src-rat-tam-test/testnum.rat";
   [%expect{| 4 |}]
 
 let%expect_test "testdenom" =
-  runtam "../../fichiersRat/src-rat-tam-test/testdenom.rat";
+  runtam "../../../fichiersRat/src-rat-tam-test/testdenom.rat";
   [%expect{| 7 |}]
 
 let%expect_test "testwhile1" =
-  runtam "../../fichiersRat/src-rat-tam-test/testwhile1.rat";
+  runtam "../../../fichiersRat/src-rat-tam-test/testwhile1.rat";
   [%expect{| 19 |}]
 
 let%expect_test "testif1" =
-  runtam "../../fichiersRat/src-rat-tam-test/testif1.rat";
+  runtam "../../../fichiersRat/src-rat-tam-test/testif1.rat";
   [%expect{| 18 |}]
 
 let%expect_test "testif2" =
-  runtam "../../fichiersRat/src-rat-tam-test/testif2.rat";
+  runtam "../../../fichiersRat/src-rat-tam-test/testif2.rat";
   [%expect{| 21 |}]
 
 let%expect_test "factiter" =
-  runtam "../../fichiersRat/src-rat-tam-test/factiter.rat";
+  runtam "../../../fichiersRat/src-rat-tam-test/factiter.rat";
   [%expect{| 120 |}]
 
 let%expect_test "factrec" =
-  runtam "../../fichiersRat/src-rat-tam-test/factrec.rat";
+  runtam "../../../fichiersRat/src-rat-tam-test/factrec.rat";
   [%expect{| 120 |}]
 
 let%expect_test "factfuns" =
-  runtam "../../fichiersRat/src-rat-tam-test/testfuns.rat";
+  runtam "../../../fichiersRat/src-rat-tam-test/testfuns.rat";
   [%expect{| 28 |}]
 
 let%expect_test "complique" =
-  runtam "../../fichiersRat/src-rat-tam-test/complique.rat";
+  runtam "../../../fichiersRat/src-rat-tam-test/complique.rat";
   [%expect{| [9/4][27/14][27/16][3/2] |}]
-

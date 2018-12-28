@@ -10,7 +10,7 @@ let compiler ratfile  =
     let ast = Parser.main Lexer.token filebuf in
     CompilateurRat.analyser ast
   with
-  | Lexer.Error s ->
+  | Lexer.Error _ ->
       report_error ratfile filebuf "lexical error (unexpected character).";
       exit 2
   | Parser.Error ->

@@ -29,12 +29,12 @@ let creerTDSFille mere = Courante (mere, Hashtbl.create 100)
 let ajouter tds nom info =
   match tds with
   | Nulle -> failwith "Ajout dans une table vide"
-  | Courante (m,c) -> Hashtbl.add c nom info
+  | Courante (_,c) -> Hashtbl.add c nom info
 
 let chercherLocalement tds nom =
   match tds with
   | Nulle -> None
-  | Courante (m,c) ->  find_opt c nom
+  | Courante (_,c) ->  find_opt c nom
 
 let rec chercherGlobalement tds nom =
   match tds with
@@ -56,7 +56,7 @@ let string_of_info info =
 let afficher_locale tds =
   match tds with
   | Nulle -> print_newline ()
-  |Courante (m,c) -> Hashtbl.iter ( fun n info -> (print_string (n^" : "^(string_of_info (info_ast_to_info info))^"\n"))) c
+  |Courante (_,c) -> Hashtbl.iter ( fun n info -> (print_string (n^" : "^(string_of_info (info_ast_to_info info))^"\n"))) c
 
 
 let afficher_globale tds =

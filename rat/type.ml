@@ -32,6 +32,8 @@ let getTaille t =
   | Pt _ -> 1 (* à vérifier *)
   | Undefined -> 0
 
+let sumTaille s t = s + getTaille t
+
 let rec getTaillePt t =
   match t with
   | Pt typ -> getTaillePt typ

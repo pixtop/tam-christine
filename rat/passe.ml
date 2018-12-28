@@ -20,7 +20,7 @@ struct
   type t1 = unit
   type t2 = unit
 
-  let analyser a = ()
+  let analyser _a = ()
 
 end
 
@@ -32,7 +32,7 @@ struct
   type t1 = Ast.AstSyntax.programme
   type t2 = unit
 
-  let analyser a = ()
+  let analyser _a = ()
 
 end
 
@@ -44,7 +44,7 @@ struct
   type t1 = unit
   type t2 = string
 
-  let analyser a = ""
+  let analyser _a = ""
 
 end
 
@@ -57,7 +57,7 @@ struct
   type t1 = Ast.AstTds.programme
   type t2 = unit
 
-  let analyser a = ()
+  let analyser _a = ()
 
 end
 
@@ -69,7 +69,7 @@ struct
   type t1 = Ast.AstType.programme
   type t2 = unit
 
-  let analyser a = ()
+  let analyser _a = ()
 
 end
 
@@ -114,7 +114,7 @@ struct
 
   (* Renvoie la suite des adresses des variables déclarées dans la fonction *)
   (* Ainsi qu'une adresse d'identifiant si le retour est un identifiant *)
-  let analyser_fonction (Ast.AstPlacement.Fonction(n,li,e,info)) =
+  let analyser_fonction (Ast.AstPlacement.Fonction(_,li,e,_)) =
     (*La liste des paramètres n'est plus présente, pour tester le placement des paramètres, on utilisera une astuce :
     il faudra écrire un programme qui renvoie le paramètre *)
     (String.concat "" (List.map (analyser_instruction) li))^(analyser_expression e)
@@ -133,6 +133,6 @@ struct
   type t1 = Ast.AstPlacement.programme
   type t2 = string
 
-  let analyser a = ""
+  let analyser _a = ""
 
 end
