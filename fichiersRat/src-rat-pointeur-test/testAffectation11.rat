@@ -1,0 +1,4 @@
+main {
+  rat * p = (new rat);
+  print (*p);
+}

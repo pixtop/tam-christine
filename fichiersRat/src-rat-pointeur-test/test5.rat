@@ -1,0 +1,10 @@
+int * init_pt (int val) {
+  int * p = (new int);
+  (* p) = val;
+  return p;
+}
+
+test5 {
+  int * p = call init_pt (6);
+  print (*p);
+}

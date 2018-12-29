@@ -79,8 +79,8 @@ let rec analyse_tds_expression tds e =
         | Some info_ast ->
         begin
         match (info_ast_to_info info_ast) with
-        | InfoFun(_, _) -> raise (MauvaiseUtilisationIdentifiant n)
-        | _ -> Adresse(info_ast)
+        | InfoVar _ -> Adresse(info_ast)
+        | _ -> raise (MauvaiseUtilisationIdentifiant n)
         end
       end
     | AstSyntax.Allocation(t) -> Allocation(t)

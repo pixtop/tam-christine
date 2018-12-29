@@ -60,6 +60,16 @@ let%test_unit "testAffectation10" =
   with
   | TypeInattendu(Undefined, Int) -> ()
 
+let%test_unit "testAffectation11" =
+  let _ = compiler "../../../fichiersRat/src-rat-pointeur-test/testAffectation11.rat" in ()
+
+let%test_unit "testConst" =
+  try
+    let _ = compiler "../../../fichiersRat/src-rat-pointeur-test/testConst.rat"
+    in raise ErreurNonDetectee
+  with
+  | MauvaiseUtilisationIdentifiant("a") -> ()
+
 let%test_unit "testUtilisation1" =
   let _ = compiler "../../../fichiersRat/src-rat-pointeur-test/testUtilisation1.rat" in ()
 

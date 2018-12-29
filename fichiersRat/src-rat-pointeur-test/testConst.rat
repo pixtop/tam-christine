@@ -1,0 +1,6 @@
+main {
+  const a = 4;
+  int *pa = &a;
+  (*pa) = 2;
+  print (*pa);
+}

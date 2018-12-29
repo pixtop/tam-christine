@@ -111,6 +111,22 @@ let%expect_test "factfuns" =
   runtam "../../../fichiersRat/src-rat-tam-test/testfuns.rat";
   [%expect{| 28 |}]
 
-let%expect_test "complique" =
-  runtam "../../../fichiersRat/src-rat-tam-test/complique.rat";
-  [%expect{| [9/4][27/14][27/16][3/2] |}]
+let%expect_test "testPt" =
+  runtam "../../../fichiersRat/src-rat-pointeur-test/test.rat";
+  [%expect{| 3 |}]
+
+  let%expect_test "testPt2" =
+  runtam "../../../fichiersRat/src-rat-pointeur-test/test2.rat";
+  [%expect{| 5 |}]
+
+  let%expect_test "testPt3" =
+  runtam "../../../fichiersRat/src-rat-pointeur-test/test3.rat";
+  [%expect{| 5 |}]
+
+  let%expect_test "testPt4" =
+  runtam "../../../fichiersRat/src-rat-pointeur-test/test4.rat";
+  [%expect{| 56 |}]
+
+  let%expect_test "testPt5" =
+  runtam "../../../fichiersRat/src-rat-pointeur-test/test5.rat";
+  [%expect{| 6 |}]
