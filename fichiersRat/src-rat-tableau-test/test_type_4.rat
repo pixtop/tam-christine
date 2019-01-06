@@ -1,0 +1,4 @@
+main {
+  int * t = null;
+  (t[0]) = 2;
+}

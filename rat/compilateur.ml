@@ -41,13 +41,13 @@ module CompilateurRat = Compilateur (PasseTdsNop) (PasseNop) (PasseNop) (PasseCo
 (*
 open PasseTdsRat
 module CompilateurRat = Compilateur (PasseTdsRat) (PasseTypeNop) (PasseNop) (PasseCodeNopNop)
- *)
+*)
 (* + passe de typage *)
 (*
 open PasseTdsRat
 open PasseTypeRat
 module CompilateurRat = Compilateur (PasseTdsRat) (PasseTypeRat) (PassePlacementNop) (PasseCodeNopNop)
- *)
+*)
 
 (* + passe de placement mémoire *)
 (*
@@ -85,7 +85,6 @@ let report_error filename lexbuf msg =
  let fc = b.pos_cnum - b.pos_bol + 1 in
  let lc = e.pos_cnum - b.pos_bol + 1 in
   Printf.eprintf "File \"%s\", line %d, characters %d-%d: %s\n" filename b.pos_lnum fc lc msg
-
 
 (* compiler : string -> string *)
 (* Compilter un code rat en un code TAM *)

@@ -88,6 +88,8 @@ typ :
 | INT     {Int}
 | RAT     {Rat}
 | t=typ MULT {Pt t}
+| t=typ CO CF {Tab t}
+| PO t=typ PF {t}
 
 e :
 | CALL n=ID PO lp=cp PF   {AppelFonction (n,lp)}
@@ -103,7 +105,8 @@ e :
 | PO e1=e INF e2=e PF     {Binaire (Inf,e1,e2)}
 | a=af                    {Acces a}
 | NULL                    {Vide}
-| PO NEW t=typ PF         {Allocation (t)}
+| PO NEW t=typ PF         {Allocation t}
+| PO NEW t=typ CO exp=e CF PF {Array_Allocation (t, exp)}
 | AND n=ID                {Adresse n}
 
 cp :
@@ -113,3 +116,4 @@ cp :
 af :
 | PO MULT a=af PF   {Valeur a}
 | n=ID              {Ident n}
+| PO a=af CO exp=e CF PF {Indice (a,exp)}

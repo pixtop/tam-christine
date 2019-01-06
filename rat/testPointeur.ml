@@ -1,6 +1,7 @@
 open Compilateur
 open Exceptions
 open Type
+open TestTam
 
 exception ErreurNonDetectee;;
 
@@ -75,3 +76,7 @@ let%test_unit "testUtilisation1" =
 
 let%test_unit "testUtilisation2" =
   let _ = compiler "../../../fichiersRat/src-rat-pointeur-test/testUtilisation2.rat" in ()
+
+let%expect_test "testDoublePonteur" =
+  runtam "../../../fichiersRat/src-rat-pointeur-test/testDoublePointeur.rat";
+  [%expect{| [1/2] |}]

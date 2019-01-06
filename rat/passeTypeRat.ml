@@ -1,11 +1,13 @@
 module PasseTypeRat : Passe.Passe with type t1 = Ast.AstTds.programme and type t2 = Ast.AstType.programme =
 struct
 
+
   open Tds
   open Exceptions
   open Ast
   open AstType
   open Type
+
 
   type t1 = Ast.AstTds.programme
   type t2 = Ast.AstType.programme
@@ -19,14 +21,21 @@ en une expression de type Asttype.affectable *)
 let rec analyse_type_affectable af =
   match af with
   | AstTds.Valeur(a) ->
-    (* acces récursif au valeur pointée *)
-    let (typ, at) = analyse_type_affectable a in
-      begin
-      (* vérification + construction chaînée de Asttype.affectable *)
-      match typ with
-      | Pt(t) -> (t, Valeur(at))
-      | _ -> raise PasUnPointeur
-      end
+      (* acces récursif aux valeurs pointées *)
+      let (typ, at) = analyse_type_affectable a in
+        (* vérification + construction chaînée de Asttype.affectable *)
+        begin
+        match typ with
+        | Pt(t) -> (t, Valeur(at))
+        | _ -> raise PasUnPointeur
+        end
+  | AstTds.Indice(a, e) ->
+    let (typ_e, ea) = analyse_type_expression e in
+      if typ_e = Int then
+        match (analyse_type_affectable a) with
+          | (Tab(t), at) -> (t, Indice(at, ea))
+          | _ -> raise PasUnTableau
+      else raise (TypeInattendu(typ_e, Int))
   | AstTds.Ident(ia) ->
     begin
     match info_ast_to_info ia with
@@ -40,7 +49,7 @@ let rec analyse_type_affectable af =
 (* Vérifie la bonne utilisation des types et tranforme l'expression
 en une expression de type Asttype.expression *)
 (* Erreur si mauvaise utilisation des types *)
-let rec analyse_type_expression e =
+and analyse_type_expression e =
   match e with
   | AstTds.AppelFonction(n, args, ia) ->
     let (typargs, targs) = List.split (List.map analyse_type_expression args) in
@@ -107,6 +116,11 @@ let rec analyse_type_expression e =
     | _ -> raise ErreurInattendue
     end
   | AstTds.Allocation(t) -> (Pt(t), Allocation(t))
+  | AstTds.Array_Allocation(t, e) ->
+    let (typ_e, ea) = analyse_type_expression e in
+      if typ_e = Int then
+        (Tab(t), Array_Allocation(t, ea))
+      else raise (TypeInattendu(typ_e, Int))
 
 
 (* analyse_type_instruction : Asttds.instruction -> Asttype.instruction *)
@@ -119,7 +133,7 @@ let rec analyse_type_instruction i =
   | AstTds.Declaration(t, e, ia) ->
       modifier_type_info t ia;
       let (te, ea) = analyse_type_expression e in
-        if te = t then
+        if est_compatible t te then
           Declaration(ea, ia)
         else raise (TypeInattendu(te, t))
   | AstTds.Affectation(af, e) ->

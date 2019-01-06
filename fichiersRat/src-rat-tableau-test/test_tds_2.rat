@@ -1,0 +1,6 @@
+main {
+  int [] t = (new int[5]);
+  (a[0]) = 3;
+  int z = (t[0]);
+  print z;
+}

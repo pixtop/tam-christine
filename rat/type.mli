@@ -1,5 +1,5 @@
 (* Types manipulés dans Rat *)
-type typ = Bool | Int | Rat | Pt of typ | Undefined
+type typ = Bool | Int | Rat | Pt of typ | Tab of typ | Undefined
 
 (* string_of_type :  typ -> string *)
 (* transforme un typ en chaîne de caractère *)
@@ -22,7 +22,3 @@ val getTaille : typ -> int
 (* sumTaille : int -> typ -> int *)
 (* Renvoie l'addition d'une taille et de la taille d'un type *)
 val sumTaille : int -> typ -> int
-
-(* getTaillePt : typ -> int *)
-(* Renvoie la taille du type pointé *)
-val getTaillePt : typ -> int

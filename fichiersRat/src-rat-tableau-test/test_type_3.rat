@@ -1,0 +1,4 @@
+main {
+  int t = 1;
+  print (t[0]);
+}

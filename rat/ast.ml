@@ -53,13 +53,15 @@ type binaire = Plus | Mult | Equ | Inf
 
 (* Affectable de Rat *)
 type affectable =
-  (* la valeur de l'affectable *)
+  (* Accès à la valeur du pointeur + décalage si indice de tableau (0 si pointeur) *)
   | Valeur of affectable
   (* l'identifiant de l'affectable *)
   | Ident of string
+  (* Accès indice d'un tableau *)
+  | Indice of affectable * expression
 
 (* Expressions de Rat *)
-type expression =
+and expression =
   (* Appel de fonction représenté par le nom de la fonction et la liste des paramètres réels *)
   | AppelFonction of string * expression list
   (* Rationnel représenté par le numérateur et le dénominateur *)
@@ -84,8 +86,10 @@ type expression =
   | Vide
   (* Accès à l'adresse du pointeur *)
   | Adresse of string
-  (* Allocation d'un pointeur de la taille du typ *)
+  (* Allocation pointeur *)
   | Allocation of typ
+  (* Allocation tableau *)
+  | Array_Allocation of typ * expression
 
 (* Instructions de Rat *)
 type bloc = instruction list
@@ -133,11 +137,12 @@ struct
   (* Conversion des affectables *)
   let rec string_of_affectable af =
     match af with
-    | Valeur a -> "(* "^(string_of_affectable a)^") "
+    | Valeur a -> "(*"^(string_of_affectable a)^")"
     | Ident n -> n^" "
+    | Indice (a,e) -> "("^(string_of_affectable a)^"["^(string_of_expression e)^"])"
 
   (* Conversion des expressions *)
-  let rec string_of_expression e =
+  and string_of_expression e =
     match e with
     | AppelFonction (n,le) -> "call "^n^"("^((List.fold_right (fun i tq -> (string_of_expression i)^tq) le ""))^") "
     | Rationnel (e1,e2) -> "["^(string_of_expression e1)^"/"^(string_of_expression e2)^"] "
@@ -149,8 +154,9 @@ struct
     | Binaire (b,e1,e2) -> (string_of_expression e1)^(string_of_binaire b)^(string_of_expression e2)^" "
     | Acces a -> (string_of_affectable a)
     | Vide -> "null "
-    | Allocation t -> "(new "^(string_of_type t)^") "
+    | Allocation t -> "(new "^(string_of_type t)^")"
     | Adresse n -> "& "^n^" "
+    | Array_Allocation (t,e) -> "(new "^(string_of_type t)^" ["^(string_of_expression e)^"]) "
 
   (* Conversion des instructions *)
   let rec string_of_instruction i =
@@ -195,11 +201,12 @@ struct
   type affectable =
     | Valeur of affectable
     | Ident of Tds.info_ast (* le nom de l'identifiant est remplacé par ses informations *)
+    | Indice of affectable * expression
 
   (* Expressions existantes dans notre langage *)
   (* ~ expression de l'AST syntaxique où les noms des identifiants ont été
   remplacés par les informations associées aux identificateurs *)
-  type expression =
+  and expression =
     | AppelFonction of string * expression list * Tds.info_ast (* le nom de la fonction est gardé car il sera nécessaire au moment de la génération de code*)
     | Rationnel of expression * expression
     | Numerateur of expression
@@ -213,6 +220,7 @@ struct
     | Vide
     | Adresse of Tds.info_ast
     | Allocation of typ
+    | Array_Allocation of typ * expression
 
   (* instructions existantes dans notre langage *)
   (* ~ instruction de l'AST syntaxique où les noms des identifiants ont été
@@ -252,13 +260,14 @@ struct
 type affectable =
   | Valeur of affectable
   | Ident of Tds.info_ast
+  | Indice of affectable * expression
 
 (* Opérateurs binaires existants dans Rat - résolution de la surcharge *)
-type binaire = PlusInt | PlusRat | MultInt | MultRat | EquInt | EquBool | Inf
+and binaire = PlusInt | PlusRat | MultInt | MultRat | EquInt | EquBool | Inf
 
 (* Expressions existantes dans Rat *)
 (* = expression de AstTds *)
-type expression =
+and expression =
   | AppelFonction of string * expression list * Tds.info_ast
   | Rationnel of expression * expression
   | Numerateur of expression
@@ -271,6 +280,7 @@ type expression =
   | Vide
   | Adresse of Tds.info_ast
   | Allocation of typ
+  | Array_Allocation of typ * expression
 
 (* instructions existantes Rat *)
 (* = instruction de AstTds + informations associées aux identificateurs, mises à jour *)

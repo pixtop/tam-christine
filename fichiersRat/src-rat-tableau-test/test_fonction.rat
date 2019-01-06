@@ -1,0 +1,11 @@
+int init_tab (rat [] [] tab) {
+  (tab[4]) = (new rat[5]);
+  ((tab[4])[3]) = [5/4];
+  return 0;
+}
+
+test5 {
+  rat [] [] t = (new rat[][5]);
+  int ret = call init_tab(t);
+  print ((t[4])[3]);
+}

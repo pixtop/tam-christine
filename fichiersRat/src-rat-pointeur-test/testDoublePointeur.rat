@@ -1,0 +1,6 @@
+main {
+  rat** x = (new rat*);
+  (*x) = (new rat);
+  (*(*x)) = [1/2];
+  print (*(*x));
+}

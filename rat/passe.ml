@@ -84,6 +84,7 @@ struct
   let rec analyser_affectable af =
     match af with
     | Ast.AstType.Valeur(a) -> analyser_affectable a
+    | Ast.AstType.Indice(a, e) -> analyser_affectable a ^ analyser_expression e
     | Ast.AstType.Ident (ia) ->
       begin
         match Tds.info_ast_to_info ia with
@@ -93,7 +94,7 @@ struct
 
   (* Renvoie l'adresse quand l'expression est l'utilisation d'un identifiant *)
   (* Astuce pour afficher le placement des paramètres puisqu'on n'a plus la liste des paramètres *)
-  let analyser_expression e =
+  and analyser_expression e =
     match e with
     | Ast.AstType.Acces af -> analyser_affectable af
     | _ -> ""

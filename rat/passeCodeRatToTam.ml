@@ -1,33 +1,49 @@
 module PasseCodeRatToTam : Passe.Passe  with type t1 = Ast.AstPlacement.programme and type t2 = string =
 struct
 
-  open Ast
-  open Tds
-  open AstPlacement
-  open Type
-  open Exceptions
-  open Code
+open Ast
+open Tds
+open AstPlacement
+open Type
+open Exceptions
+open Code
 
-  type t1 = Ast.AstPlacement.programme
-  type t2 = string
+type t1 = Ast.AstPlacement.programme
+type t2 = string
 
 let pf = Printf.sprintf
 
 let rec analyse_valeur_affectable a =
   match a with
   | AstType.Valeur af ->
-    let (t,s) = analyse_valeur_affectable af in (t, s^"LOADI (1)\n")
+    let (t,s) = analyse_valeur_affectable af in
+      begin
+      match t with
+        | Pt t_var -> (t_var, s^"LOADI (1)\n")
+        | Tab t_var -> (t_var, s^"LOADI (1)\n")
+        | _ -> raise ErreurInattendue
+      end
   | AstType.Ident ia ->
     begin
       match info_ast_to_info ia with
-      | InfoVar (t, d, r) -> (getTaillePt t, pf "LOAD (1) %d[%s]\n" d r)
+      | InfoVar (Pt t_var, d, r) -> (t_var, pf "LOAD (1) %d[%s]\n" d r)
+      | InfoVar (Tab t_var, d, r) -> (t_var, pf "LOAD (1) %d[%s]\n" d r)
       | _ -> raise ErreurInattendue
     end
+  | AstType.Indice (af, e) ->
+    let (t,s) = analyse_valeur_affectable af in
+      begin
+      match t with
+        | Tab t_var -> (t_var, pf "%s%sSUBR IAdd\nLOADI (1)\n" s (analyse_code_expression e))
+        | Pt t_var -> (t_var, pf "%s%sSUBR IAdd\nLOADI (1)\n" s (analyse_code_expression e))
+        | _ -> raise ErreurInattendue
+      end
 
-let analyse_code_affectable_d a =
+
+and analyse_code_affectable_d a =
   match a with
   | AstType.Valeur af ->
-    let (t, s) = analyse_valeur_affectable af in s^pf "LOADI (%d)\n" t
+    let (t, s) = analyse_valeur_affectable af in s^pf "LOADI (%d)\n" (getTaille t)
   | AstType.Ident ia ->
     begin
       match info_ast_to_info ia with
@@ -35,20 +51,27 @@ let analyse_code_affectable_d a =
       | InfoConst i -> pf "LOADL %d\n" i
       | _ -> raise ErreurInattendue
     end
+  | AstType.Indice (af, e) ->
+    let (t,s) = analyse_valeur_affectable af in
+      pf "%s%sLOADL %d\nSUBR IMul\nSUBR IAdd\nLOADI (%d)\n" s (analyse_code_expression e) (getTaille t) (getTaille t)
 
-let analyse_code_affectable_g a =
+and analyse_code_affectable_g a =
   match a with
   | AstType.Valeur af ->
-    let (t, s) = analyse_valeur_affectable af in s^pf "STOREI (%d)\n" t
+    let (t, s) = analyse_valeur_affectable af in s^pf "STOREI (%d)\n" (getTaille t)
   | AstType.Ident ia ->
     begin
       match info_ast_to_info ia with
       | InfoVar (t, d, r) -> pf "STORE (%d) %d[%s]\n" (getTaille t) d r
       | _ -> raise ErreurInattendue
     end
+  | AstType.Indice (af, e) ->
+    let (t,s) = analyse_valeur_affectable af in
+      pf "%s%sLOADL %d\nSUBR IMul\nSUBR IAdd\nSTOREI (%d)\n" s (analyse_code_expression e) (getTaille t) (getTaille t)
 
 
-let rec analyse_code_expression e =
+
+and analyse_code_expression e =
   match e with
     | AstType.AppelFonction(n, le, _) ->
       (List.fold_left (fun ac e -> ac ^ analyse_code_expression e) "" le) ^
@@ -81,6 +104,8 @@ let rec analyse_code_expression e =
         | _ -> raise ErreurInattendue
       end
     | AstType.Allocation t -> pf "LOADL %d\nSUBR MAlloc\n" (getTaille t)
+    | AstType.Array_Allocation (t, e) ->
+      pf "%sLOADL %d\nSUBR IMul\nSUBR MAlloc\n" (analyse_code_expression e) (getTaille t)
 
 
 let rec analyse_code_instruction i pop_size =
@@ -135,5 +160,6 @@ let analyser (Programme(fcts, prog)) =
     let fcts_str = List.fold_left (fun ls fct -> ls ^ analyse_code_fonction fct ^ "\n") "" fcts
     and main = "LABEL main\n" ^ (addPop (analyse_code_bloc prog) 0) ^ "HALT\n" in
     getEntete () ^ fcts_str ^ main
+
 
 end

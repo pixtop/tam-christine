@@ -1,0 +1,16 @@
+main {
+  int [] [] t = (new int[][3]);
+  int i = 0;
+  while (i < 3)
+  {
+    (t[i]) = (new int[3]);
+    int j = 0;
+    while (j < 3)
+    {
+      ((t[i])[j]) = ((i*3) + j);
+      print ((t[i])[j]);
+      j = (j + 1);
+    }
+    i = (i + 1);
+  }
+}

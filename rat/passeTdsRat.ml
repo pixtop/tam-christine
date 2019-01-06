@@ -2,10 +2,12 @@
 module PasseTdsRat : Passe.Passe with type t1 = Ast.AstSyntax.programme and type t2 = Ast.AstTds.programme =
 struct
 
+
   open Tds
   open Exceptions
   open Ast
   open AstTds
+
 
   type t1 = Ast.AstSyntax.programme
   type t2 = Ast.AstTds.programme
@@ -21,6 +23,7 @@ en un affectable de type Asttds.affectable *)
 let rec analyse_tds_affectable gauche tds af =
   match af with
   | AstSyntax.Valeur(a) -> Valeur(analyse_tds_affectable gauche tds a)
+  | AstSyntax.Indice(a, e) -> Indice(analyse_tds_affectable gauche tds a, analyse_tds_expression tds e)
   | AstSyntax.Ident(n) ->
     begin
     match chercherGlobalement tds n with
@@ -38,18 +41,13 @@ let rec analyse_tds_affectable gauche tds af =
         | _ -> Ident(info_ast)
     end
 
-(* applications partielles découlant de la fonction analyse_tds_affectable *)
-let analyse_tds_affectable_g = analyse_tds_affectable true
- and analyse_tds_affectable_d = analyse_tds_affectable false
-
-
 (* analyse_tds_expression : tds -> AstSyntax.ast -> Asttds.expression *)
 (* Paramètre tds : la table des symboles courante *)
 (* Paramètre e : l'expression à analyser *)
 (* Vérifie la bonne utilisation des identifiants et tranforme l'expression
 en une expression de type Asttds.expression *)
 (* Erreur si mauvaise utilisation des identifiants *)
-let rec analyse_tds_expression tds e =
+and analyse_tds_expression tds e =
   match e with
     | AstSyntax.AppelFonction(n, args) ->
       begin
@@ -70,7 +68,7 @@ let rec analyse_tds_expression tds e =
     | AstSyntax.False -> False
     | AstSyntax.Entier(i) -> Entier(i)
     | AstSyntax.Binaire(op, a, b) -> Binaire(op, analyse_tds_expression tds a, analyse_tds_expression tds b)
-    | AstSyntax.Acces(a) -> let ta = analyse_tds_affectable_d tds a in Acces(ta)
+    | AstSyntax.Acces(a) -> let ta = analyse_tds_affectable false tds a in Acces(ta)
     | AstSyntax.Vide -> Vide
     | AstSyntax.Adresse(n) ->
       begin
@@ -84,6 +82,7 @@ let rec analyse_tds_expression tds e =
         end
       end
     | AstSyntax.Allocation(t) -> Allocation(t)
+    | AstSyntax.Array_Allocation(t, e) -> Array_Allocation(t, analyse_tds_expression tds e)
 
 
 (* analyse_tds_instruction : tds -> AstSyntax.instruction -> Asttds.instruction *)
@@ -118,7 +117,7 @@ let rec analyse_tds_instruction tds i =
           raise (DoubleDeclaration n)
       end
   | AstSyntax.Affectation (a,e) ->
-    let ta = analyse_tds_affectable_g tds a in
+    let ta = analyse_tds_affectable true tds a in
       let te = analyse_tds_expression tds e in
         Affectation(ta,te)
   | AstSyntax.Constante (n,v) ->
