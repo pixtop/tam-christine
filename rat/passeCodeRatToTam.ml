@@ -19,23 +19,20 @@ let rec analyse_valeur_affectable a =
     let (t,s) = analyse_valeur_affectable af in
       begin
       match t with
-        | Pt t_var -> (t_var, s^"LOADI (1)\n")
-        | Tab t_var -> (t_var, s^"LOADI (1)\n")
+        | Pt t_var | Tab t_var -> (t_var, s^"LOADI (1)\n")
         | _ -> raise ErreurInattendue
       end
   | AstType.Ident ia ->
     begin
       match info_ast_to_info ia with
-      | InfoVar (Pt t_var, d, r) -> (t_var, pf "LOAD (1) %d[%s]\n" d r)
-      | InfoVar (Tab t_var, d, r) -> (t_var, pf "LOAD (1) %d[%s]\n" d r)
+      | InfoVar (Pt t_var, d, r) | InfoVar (Tab t_var, d, r) -> (t_var, pf "LOAD (1) %d[%s]\n" d r)
       | _ -> raise ErreurInattendue
     end
   | AstType.Indice (af, e) ->
     let (t,s) = analyse_valeur_affectable af in
       begin
       match t with
-        | Tab t_var -> (t_var, pf "%s%sSUBR IAdd\nLOADI (1)\n" s (analyse_code_expression e))
-        | Pt t_var -> (t_var, pf "%s%sSUBR IAdd\nLOADI (1)\n" s (analyse_code_expression e))
+        | Tab t_var | Pt t_var -> (t_var, pf "%s%sSUBR IAdd\nLOADI (1)\n" s (analyse_code_expression e))
         | _ -> raise ErreurInattendue
       end
 
