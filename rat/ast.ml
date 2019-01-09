@@ -213,7 +213,6 @@ struct
     | Rationnel of expression * expression
     | Numerateur of expression
     | Denominateur of expression
-    (* | Ident of Tds.info_ast (* le nom de l'identifiant est remplacé par ses informations *) *)
     | True
     | False
     | Entier of int
@@ -230,13 +229,12 @@ struct
   + suppression de nœuds (const) *)
   type bloc = instruction list
   and instruction =
-    (* | Declaration of typ * expression * Tds.info_ast (* le nom de l'identifiant est remplacé par ses informations *) *)
-    | Declaration of typ * expression * Tds.info_ast
-    (* | Affectation of  expression * Tds.info_ast (* le nom de l'identifiant est remplacé par ses informations *) *)
+    | Declaration of typ * expression * Tds.info_ast (* le nom de l'identifiant est remplacé par ses informations *)
     | Affectation of affectable * expression
     | Affichage of expression
     | Conditionnelle of expression * bloc * bloc
     | TantQue of expression * bloc
+    | TypeNomme of typ * Tds.info_ast (* le nom de l'identifiant est remplacé par ses informations *)
     | Empty (* les nœuds ayant disparus: Const *)
 
 
@@ -296,7 +294,7 @@ type bloc = instruction list
   | AffichageBool of expression
   | Conditionnelle of expression * bloc * bloc
   | TantQue of expression * bloc
-  | Empty (* les nœuds ayant disparus: Const *)
+  | Empty (* les nœuds ayant disparus: Const, TypeNomme *)
 
 (* nom, liste des paramètres, corps, expression de retour, informations associées à l'identificateur *)
 type fonction = Fonction of string * Tds.info_ast list * bloc * expression * Tds.info_ast
