@@ -1,4 +1,4 @@
-type typ = Bool | Int | Rat | Pt of typ | Tab of typ | Undefined
+type typ = Bool | Int | Rat | Pt of typ | Tab of typ | Nomme of string | Undefined
 
 let rec string_of_type t =
   match t with
