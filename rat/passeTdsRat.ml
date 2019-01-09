@@ -18,8 +18,10 @@ struct
 (* Paramètre t : le type à analyser *)
 (* Vérifie que le type et transforme si il est nommé par son véritable typ *)
 (* Erreur si le type nommé n'a pas été déclaré *)
-let analyse_tds_type tds t =
+let rec analyse_tds_type tds t =
   match t with
+  | Type.Tab tt -> Type.Tab(analyse_tds_type tds tt)
+  | Type.Pt tp -> Type.Pt(analyse_tds_type tds tp)
   | Type.Nomme n ->
     begin
       match chercherGlobalement tds n with
@@ -103,9 +105,9 @@ and analyse_tds_expression tds e =
         end
       end
     | AstSyntax.Allocation(t) ->
-      let nt = analyse_tds_type tds t in Allocation(nt)
+      Allocation(analyse_tds_type tds t)
     | AstSyntax.Array_Allocation(t, e) ->
-      let nt = analyse_tds_type tds t in Array_Allocation(nt, analyse_tds_expression tds e)
+      Array_Allocation(analyse_tds_type tds t, analyse_tds_expression tds e)
 
 
 (* analyse_tds_instruction : tds -> AstSyntax.instruction -> Asttds.instruction *)
@@ -118,27 +120,26 @@ let rec analyse_tds_instruction tds i =
   match i with
   | AstSyntax.Declaration (t, n, e) ->
       begin
-      let nt = analyse_tds_type tds t in
-        match chercherLocalement tds n with
-        | None ->
-            (* L'identifiant n'est pas trouvé dans la tds locale,
-            il n'a donc pas été déclaré dans le bloc courant *)
-            (* Vérification de la bonne utilisation des identifiants dans l'expression *)
-            (* et obtention de l'expression transformée *)
-            let ne = analyse_tds_expression tds e in
-            (* Création de l'information associée à l'identfiant *)
-            let info = InfoVar (Undefined, 0, "") in
-            (* Création du pointeur sur l'information *)
-            let ia = info_to_info_ast info in
-            (* Ajout de l'information (pointeur) dans la tds *)
-            ajouter tds n ia;
-            (* Renvoie de la nouvelle déclaration où le nom a été remplacé par l'information
-            et l'expression remplacée par l'expression issue de l'analyse *)
-            Declaration (nt, ne, ia)
-        | Some _ ->
-            (* L'identifiant est trouvé dans la tds locale,
-            il a donc déjà été déclaré dans le bloc courant *)
-            raise (DoubleDeclaration n)
+      match chercherLocalement tds n with
+      | None ->
+          (* L'identifiant n'est pas trouvé dans la tds locale,
+          il n'a donc pas été déclaré dans le bloc courant *)
+          (* Vérification de la bonne utilisation des identifiants dans l'expression *)
+          (* et obtention de l'expression transformée *)
+          let ne = analyse_tds_expression tds e in
+          (* Création de l'information associée à l'identfiant *)
+          let info = InfoVar (Undefined, 0, "") in
+          (* Création du pointeur sur l'information *)
+          let ia = info_to_info_ast info in
+          (* Ajout de l'information (pointeur) dans la tds *)
+          ajouter tds n ia;
+          (* Renvoie de la nouvelle déclaration où le nom a été remplacé par l'information
+          et l'expression remplacée par l'expression issue de l'analyse *)
+          Declaration (analyse_tds_type tds t, ne, ia)
+      | Some _ ->
+          (* L'identifiant est trouvé dans la tds locale,
+          il a donc déjà été déclaré dans le bloc courant *)
+          raise (DoubleDeclaration n)
       end
   | AstSyntax.Affectation (a,e) ->
     let ta = analyse_tds_affectable true tds a in
@@ -183,13 +184,11 @@ let rec analyse_tds_instruction tds i =
       TantQue (nc, bast)
   | AstSyntax.TypeNomme (n, t) ->
     begin
-    match chercherLocalement tds n with
-    | None ->
-      let info = InfoTyp (t) in
-        let ia = info_to_info_ast info in
-          ajouter tds n ia;
-          Empty
-    | Some _ -> raise (DoubleDeclaration n)
+      match chercherLocalement tds n with
+      | None ->
+        ajouter tds n (info_to_info_ast (InfoTyp (analyse_tds_type tds t)));
+        Empty
+      | Some _ -> raise (DoubleDeclaration n)
     end
 
 
@@ -217,12 +216,12 @@ en une fonction de type Asttds.fonction *)
 let analyse_tds_fonction maintds (AstSyntax.Fonction(t,n,lp,li,e))  =
     match chercherLocalement maintds n with
       | Some _ -> raise (DoubleDeclaration n)
-      | None -> let tds = creerTDSFille maintds in let fill (t,s) =
-        let nt = analyse_tds_type tds t in
-          match chercherLocalement tds s with
-          | Some _ -> raise (DoubleDeclaration s)
-          | None -> let lia = info_to_info_ast (InfoVar(Undefined, 0, "")) in ajouter tds s lia;
-                    (nt,lia)
+      | None -> let tds = creerTDSFille maintds in
+      let fill (t,s) =
+        match chercherLocalement tds s with
+        | Some _ -> raise (DoubleDeclaration s)
+        | None -> let lia = info_to_info_ast (InfoVar(Undefined, 0, "")) in ajouter tds s lia;
+                  (analyse_tds_type tds t,lia)
     in
       let args_list = List.map fill lp in
         let ia = info_to_info_ast (InfoFun(Undefined, [])) in ajouter maintds n ia;
