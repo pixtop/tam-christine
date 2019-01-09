@@ -234,8 +234,7 @@ struct
     | Affichage of expression
     | Conditionnelle of expression * bloc * bloc
     | TantQue of expression * bloc
-    | TypeNomme of typ * Tds.info_ast (* le nom de l'identifiant est remplacé par ses informations *)
-    | Empty (* les nœuds ayant disparus: Const *)
+    | Empty (* les nœuds ayant disparus: Const, TypeNomme *)
 
 
   (* Structure des fonctions dans notre langage *)
@@ -294,12 +293,7 @@ type bloc = instruction list
   | AffichageBool of expression
   | Conditionnelle of expression * bloc * bloc
   | TantQue of expression * bloc
-<<<<<<< HEAD
   | Empty (* les nœuds ayant disparus: Const, TypeNomme *)
-=======
-  | TypeNomme of Tds.info_ast
-  | Empty (* les nœuds ayant disparus: Const *)
->>>>>>> 46ebb199890655a19525118449e6d3a6b3ffe145
 
 (* nom, liste des paramètres, corps, expression de retour, informations associées à l'identificateur *)
 type fonction = Fonction of string * Tds.info_ast list * bloc * expression * Tds.info_ast
