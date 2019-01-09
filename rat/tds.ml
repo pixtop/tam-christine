@@ -6,6 +6,7 @@ type info =
   | InfoConst of int
   | InfoVar of typ * int * string
   | InfoFun of typ * typ list
+  | InfoTyp of typ
 
 (* Données stockées dans la tds  et dans les AST : pointeur sur une information *)
 type info_ast = info ref
