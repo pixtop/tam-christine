@@ -93,7 +93,7 @@ typ :
 | t=typ MULT    {Pt t}
 | t=typ CO CF   {Tab t}
 | PO t=typ PF   {t}
-| n=id          {Nomme n}
+| n=TID         {Nomme n}
 
 e :
 | CALL n=ID PO lp=cp PF         {AppelFonction (n,lp)}
