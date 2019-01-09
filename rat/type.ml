@@ -34,6 +34,6 @@ let getTaille t =
   | Rat -> 2
   | Pt _ -> 1 (* à vérifier *)
   | Tab _ -> 1 (* pareil *)
-  | Undefined -> 0
+  | _ -> 0
 
 let sumTaille s t = s + getTaille t
