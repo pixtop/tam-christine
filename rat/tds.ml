@@ -6,6 +6,7 @@ type info =
   | InfoConst of int
   | InfoVar of typ * int * string
   | InfoFun of typ * typ list
+  | InfoTyp of typ
 
 (* Données stockées dans la tds  et dans les AST : pointeur sur une information *)
 type info_ast = info ref
@@ -48,6 +49,7 @@ let rec chercherGlobalement tds nom =
 let string_of_info info =
   match info with
   | InfoConst value -> "Constante "^(string_of_int value)
+  | InfoTyp t -> "Type Nommé "^(string_of_type t)
   | InfoVar (t,dep,base) -> "Variable "^(string_of_type t)^" "^(string_of_int dep)^"["^base^"]"
   | InfoFun (t,tp) -> "Fonction "^(List.fold_right (fun elt tq -> if tq = "" then (string_of_type elt) else (string_of_type elt)^" * "^tq) tp "" )^
                       " -> "^(string_of_type t)

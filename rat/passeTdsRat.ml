@@ -13,6 +13,29 @@ struct
   type t2 = Ast.AstTds.programme
 
 
+(* analyse_tds_type : tds -> Typ -> Typ *)
+(* Paramètre tds : la table des symboles courante *)
+(* Paramètre t : le type à analyser *)
+(* Vérifie que le type et transforme si il est nommé par son véritable typ *)
+(* Erreur si le type nommé n'a pas été déclaré *)
+let rec analyse_tds_type tds t =
+  match t with
+  | Type.Tab tt -> Type.Tab(analyse_tds_type tds tt)
+  | Type.Pt tp -> Type.Pt(analyse_tds_type tds tp)
+  | Type.Nomme n ->
+    begin
+      match chercherGlobalement tds n with
+      | None -> raise (IdentifiantNonDeclare n)
+      | Some ia ->
+        begin
+        match info_ast_to_info ia with
+        | InfoTyp tn -> tn
+        | _ -> raise ErreurInattendue
+        end
+    end
+  | _ -> t
+
+
 (* analyse_tds_affectable : bool -> tds -> AstSyntax.ast -> Asttds.affectable *)
 (* Paramètre gauche : précise si l'affectable est à gauche ou à droite du = *)
 (* Paramètre tds : la table des symboles courante *)
@@ -81,8 +104,10 @@ and analyse_tds_expression tds e =
         | _ -> raise (MauvaiseUtilisationIdentifiant n)
         end
       end
-    | AstSyntax.Allocation(t) -> Allocation(t)
-    | AstSyntax.Array_Allocation(t, e) -> Array_Allocation(t, analyse_tds_expression tds e)
+    | AstSyntax.Allocation(t) ->
+      Allocation(analyse_tds_type tds t)
+    | AstSyntax.Array_Allocation(t, e) ->
+      Array_Allocation(analyse_tds_type tds t, analyse_tds_expression tds e)
 
 
 (* analyse_tds_instruction : tds -> AstSyntax.instruction -> Asttds.instruction *)
@@ -110,7 +135,7 @@ let rec analyse_tds_instruction tds i =
           ajouter tds n ia;
           (* Renvoie de la nouvelle déclaration où le nom a été remplacé par l'information
           et l'expression remplacée par l'expression issue de l'analyse *)
-          Declaration (t, ne, ia)
+          Declaration (analyse_tds_type tds t, ne, ia)
       | Some _ ->
           (* L'identifiant est trouvé dans la tds locale,
           il a donc déjà été déclaré dans le bloc courant *)
@@ -157,6 +182,14 @@ let rec analyse_tds_instruction tds i =
       let bast = analyse_tds_bloc tds b in
       (* Renvoie la nouvelle structure de la boucle *)
       TantQue (nc, bast)
+  | AstSyntax.TypeNomme (n, t) ->
+    begin
+      match chercherLocalement tds n with
+      | None ->
+        ajouter tds n (info_to_info_ast (InfoTyp (analyse_tds_type tds t)));
+        Empty
+      | Some _ -> raise (DoubleDeclaration n)
+    end
 
 
 (* analyse_tds_bloc : AstSyntax.bloc -> Asttds.bloc *)
@@ -181,19 +214,21 @@ and analyse_tds_bloc tds li =
 en une fonction de type Asttds.fonction *)
 (* Erreur si mauvaise utilisation des identifiants *)
 let analyse_tds_fonction maintds (AstSyntax.Fonction(t,n,lp,li,e))  =
-  match chercherLocalement maintds n with
-    | Some _ -> raise (DoubleDeclaration n)
-    | None -> let tds = creerTDSFille maintds in let fill (t,s) =
-      match chercherLocalement tds s with
-      | Some _ -> raise (DoubleDeclaration s)
-      | None -> let lia = info_to_info_ast (InfoVar(Undefined, 0, "")) in ajouter tds s lia;
-                (t,lia)
-      in
-        let args_list = List.map fill lp in
-          let ia = info_to_info_ast (InfoFun(Undefined, [])) in ajouter maintds n ia;
-            let blc = List.map (analyse_tds_instruction tds) li in
-              let ret = analyse_tds_expression tds e in
-                  Fonction(t, n, args_list, blc, ret, ia)
+    match chercherLocalement maintds n with
+      | Some _ -> raise (DoubleDeclaration n)
+      | None -> let tds = creerTDSFille maintds in
+      let fill (t,s) =
+        match chercherLocalement tds s with
+        | Some _ -> raise (DoubleDeclaration s)
+        | None -> let lia = info_to_info_ast (InfoVar(Undefined, 0, "")) in ajouter tds s lia;
+                  (analyse_tds_type tds t,lia)
+    in
+      let args_list = List.map fill lp in
+        let ia = info_to_info_ast (InfoFun(Undefined, [])) in ajouter maintds n ia;
+          let blc = List.map (analyse_tds_instruction tds) li in
+            let ret = analyse_tds_expression tds e in
+              let nt = analyse_tds_type tds t in
+                Fonction(nt, n, args_list, blc, ret, ia)
 
 
 (* analyser : AstSyntax.ast -> Asttds.ast *)

@@ -1,0 +1,8 @@
+main {
+  type Int2 = int;
+  type Tabint = Int2 [];
+  Tabint t = (new int [5]);
+  Int2 a = 2;
+  (t[0]) = a;
+  int y = (t[2]);
+}

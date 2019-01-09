@@ -1,4 +1,4 @@
-type typ = Bool | Int | Rat | Pt of typ | Tab of typ | Undefined
+type typ = Bool | Int | Rat | Pt of typ | Tab of typ | Nomme of string | Undefined
 
 let rec string_of_type t =
   match t with
@@ -7,6 +7,7 @@ let rec string_of_type t =
   | Rat       ->  "Rat"
   | Pt typ  ->  "* "^(string_of_type typ)
   | Tab typ -> "[] "^(string_of_type typ)
+  | Nomme n -> n
   | Undefined -> "Undefined"
 
 
@@ -33,6 +34,6 @@ let getTaille t =
   | Rat -> 2
   | Pt _ -> 1 (* à vérifier *)
   | Tab _ -> 1 (* pareil *)
-  | Undefined -> 0
+  | _ -> 0
 
 let sumTaille s t = s + getTaille t

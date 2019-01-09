@@ -1,51 +1,53 @@
-open Type 
+open Type
 
 (* Définition du type des informations associées aux identifiants *)
 type info =
   (* Information associée à une constante : sa valeur *)
   | InfoConst of int
-  (* Information associée à une variable : son type, et son adresse 
+  (* Information associée à une variable : son type, et son adresse
   ie son déplacement (int) par rapport à un registre (string) *)
   | InfoVar of typ * int * string
   (* Information associée à une fonction : son type de retour et la liste
   des types des paramètres *)
   | InfoFun of typ * typ list
+  (* Information associée à un type nommé : son type *)
+  | InfoTyp of typ
 
 (* Table des symboles *)
-type tds 
+type tds
 
 (* Données stockées dans la tds  et dans les AST : pointeur sur une information *)
 type info_ast
 
 (* Création d'une table des symboles à la racine *)
-val creerTDSMere : unit -> tds 
+val creerTDSMere : unit -> tds
 
 (* Création d'une table des symboles fille *)
 (* Le paramètre est la table mère *)
-val creerTDSFille : tds -> tds 
+val creerTDSFille : tds -> tds
 
 (* Ajoute une information dans la table des symboles locale *)
 (* tds : la tds courante *)
 (* string : le nom de l'identificateur *)
 (* info : l'information à associer à l'identificateur *)
 (* retour : unit *)
-val ajouter : tds -> string -> info_ast -> unit 
+val ajouter : tds -> string -> info_ast -> unit
 
 (* Recherche les informations d'un identificateur dans la tds locale *)
 (* Ne cherche que dans la tds de plus bas niveau *)
-val chercherLocalement : tds -> string -> info_ast option 
+val chercherLocalement : tds -> string -> info_ast option
 
 (* Recherche les informations d'un identificateur dans la tds globale *)
 (* Si l'identificateur n'est pas présent dans la tds de plus bas niveau *)
 (* la recherche est effectuée dans sa table mère et ainsi de suite *)
 (* jusqu'à trouver (ou pas) l'identificateur *)
-val chercherGlobalement : tds -> string -> info_ast option 
+val chercherGlobalement : tds -> string -> info_ast option
 
 (* Affiche la tds locale *)
-val afficher_locale : tds -> unit 
+val afficher_locale : tds -> unit
 
 (* Affiche la tds locale et récursivement *)
-val afficher_globale : tds -> unit 
+val afficher_globale : tds -> unit
 
 (* Créer une information à associer à l'AST à partir d'une info *)
 val info_to_info_ast : info -> info_ast

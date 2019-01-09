@@ -95,7 +95,6 @@ and expression =
 type bloc = instruction list
 and instruction =
   (* Déclaration de variable représentée par son type, son nom et l'expression d'initialisation *)
-  (* | Declaration of typ * string * expression *)
   | Declaration of typ * string * expression
   (* Affectation d'une variable représentée par son nom/pointeur et la nouvelle valeur affectée *)
   | Affectation of affectable * expression
@@ -105,8 +104,10 @@ and instruction =
   | Affichage of expression
   (* Conditionnelle représentée par la condition, le bloc then et le bloc else *)
   | Conditionnelle of expression * bloc * bloc
-  (*Boucle TantQue représentée par la conditin d'arrêt de la boucle et le bloc d'instructions *)
+  (* Boucle TantQue représentée par la conditin d'arrêt de la boucle et le bloc d'instructions *)
   | TantQue of expression * bloc
+  (* Déclaration d'un type nommé représenté par son nom et son type *)
+  | TypeNomme of string * typ
 
 (* Structure des fonctions de Rat *)
 (* type de retour - nom - liste des paramètres (association type et nom) - corps de la fonction - valeur de retour *)
@@ -170,6 +171,7 @@ struct
                                   "ELSE \n"^((List.fold_right (fun i tq -> (string_of_instruction i)^tq) e ""))^"\n"
     | TantQue (c,b) -> "TantQue  : TQ "^(string_of_expression c)^"\n"^
                                   "FAIRE \n"^((List.fold_right (fun i tq -> (string_of_instruction i)^tq) b ""))^"\n"
+    | TypeNomme(n,t) -> "TypeNomme  : TYPE "^n^" = "^(string_of_type t)^"\n"
 
   (* Conversion des fonctions *)
   let string_of_fonction (Fonction(t,n,lp,li,e)) = (string_of_type t)^" "^n^" ("^((List.fold_right (fun (t,n) tq -> (string_of_type t)^" "^n^" "^tq) lp ""))^") = \n"^
@@ -211,7 +213,6 @@ struct
     | Rationnel of expression * expression
     | Numerateur of expression
     | Denominateur of expression
-    (* | Ident of Tds.info_ast (* le nom de l'identifiant est remplacé par ses informations *) *)
     | True
     | False
     | Entier of int
@@ -228,14 +229,12 @@ struct
   + suppression de nœuds (const) *)
   type bloc = instruction list
   and instruction =
-    (* | Declaration of typ * expression * Tds.info_ast (* le nom de l'identifiant est remplacé par ses informations *) *)
-    | Declaration of typ * expression * Tds.info_ast
-    (* | Affectation of  expression * Tds.info_ast (* le nom de l'identifiant est remplacé par ses informations *) *)
+    | Declaration of typ * expression * Tds.info_ast (* le nom de l'identifiant est remplacé par ses informations *)
     | Affectation of affectable * expression
     | Affichage of expression
     | Conditionnelle of expression * bloc * bloc
     | TantQue of expression * bloc
-    | Empty (* les nœuds ayant disparus: Const *)
+    | Empty (* les nœuds ayant disparus: Const, TypeNomme *)
 
 
   (* Structure des fonctions dans notre langage *)
@@ -294,7 +293,7 @@ type bloc = instruction list
   | AffichageBool of expression
   | Conditionnelle of expression * bloc * bloc
   | TantQue of expression * bloc
-  | Empty (* les nœuds ayant disparus: Const *)
+  | Empty (* les nœuds ayant disparus: Const, TypeNomme *)
 
 (* nom, liste des paramètres, corps, expression de retour, informations associées à l'identificateur *)
 type fonction = Fonction of string * Tds.info_ast list * bloc * expression * Tds.info_ast

@@ -9,6 +9,7 @@ open Ast.AstSyntax
 
 %token <int> ENTIER
 %token <string> ID
+%token <string> TID
 %token RETURN
 %token PV
 %token AO
@@ -38,6 +39,7 @@ open Ast.AstSyntax
 %token NEW
 %token NULL
 %token AND
+%token NTYPE
 %token EOF
 
 (* Type de l'attribut synthétisé des non-terminaux *)
@@ -78,22 +80,24 @@ i :
 | PRINT e1=e PV                     {Affichage (e1)}
 | IF exp=e li1=bloc ELSE li2=bloc   {Conditionnelle (exp,li1,li2)}
 | WHILE exp=e li=bloc               {TantQue (exp,li)}
+| NTYPE tid=TID EQUAL t=typ PV      {TypeNomme (tid,t)}
 
 dp :
 |                         {[]}
 | t=typ n=ID lp=dp        {(t,n)::lp}
 
 typ :
-| BOOL        {Bool}
-| INT         {Int}
-| RAT         {Rat}
-| t=typ MULT  {Pt t}
-| t=typ CO CF {Tab t}
-| PO t=typ PF {t}
+| BOOL          {Bool}
+| INT           {Int}
+| RAT           {Rat}
+| t=typ MULT    {Pt t}
+| t=typ CO CF   {Tab t}
+| PO t=typ PF   {t}
+| n=TID         {Nomme n}
 
 e :
 | CALL n=ID PO lp=cp PF         {AppelFonction (n,lp)}
-| CO e1=e SLASH e2=e CF         {Rationnel(e1,e2)}
+| CO e1=e SLASH e2=e CF         {Rationnel (e1,e2)}
 | NUM e1=e                      {Numerateur e1}
 | DENOM e1=e                    {Denominateur e1}
 | TRUE                          {True}
