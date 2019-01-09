@@ -7,6 +7,7 @@ let rec string_of_type t =
   | Rat       ->  "Rat"
   | Pt typ  ->  "* "^(string_of_type typ)
   | Tab typ -> "[] "^(string_of_type typ)
+  | Nomme n -> n
   | Undefined -> "Undefined"
 
 
