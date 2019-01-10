@@ -1,0 +1,8 @@
+main {
+  type Int2 = int;
+  type PtInt = Int2 *;
+  PtInt p = (new int);
+  Int2 a = 2;
+  p = &a;
+  int v = (*p);
+}

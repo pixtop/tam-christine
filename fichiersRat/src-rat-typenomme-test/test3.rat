@@ -1,0 +1,11 @@
+int hd (int[] c) {
+  return (c[0]);
+}
+
+main {
+  type Couple = int [];
+  Couple c = (new int[2]);
+  (c[0]) = 1;
+  (c[1]) = 2;
+  print call hd(c);
+}

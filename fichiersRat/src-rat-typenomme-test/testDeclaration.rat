@@ -1,0 +1,5 @@
+main {
+  type Int = int;
+  type Int2 = int;
+  type Int2 = Int; 
+}
