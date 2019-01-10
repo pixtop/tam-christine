@@ -132,6 +132,13 @@ let rec analyse_code_instruction i pop_size =
         etiq1 ^ analyse_code_expression e ^ "JUMPIF (0) "^etiq2 ^
           addPop (analyse_code_bloc b) 0 ^ "JUMP " ^etiq1 ^
         etiq2, pop_size
+      | AstType.Pour(_, v1, cond, af, v2, blc) ->
+        let start = getEtiquette () and stop = getEtiquette () in
+          analyse_code_expression v1 ^
+            start ^ analyse_code_expression cond ^ "JUMPIF (0) "^ stop ^
+              addPop (analyse_code_bloc blc) 0 ^ analyse_code_expression v2 ^ analyse_code_affectable_g af ^
+            "JUMP " ^ start ^ stop ^
+          "POP (0) 1\n", pop_size
       | AstType.Empty -> "", pop_size
 
 

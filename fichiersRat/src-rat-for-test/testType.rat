@@ -1,0 +1,7 @@
+main {
+  int i = 2;
+  for (int i = [1/2]; (i < 2); i = (i + 1))
+  {
+    print i;
+  }
+}

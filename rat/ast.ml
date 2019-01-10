@@ -108,6 +108,8 @@ and instruction =
   | TantQue of expression * bloc
   (* Déclaration d'un type nommé représenté par son nom et son type *)
   | TypeNomme of string * typ
+  (* Boucle for avec un id de compteur, valeur de départ, condition, variable à modifier et expression de modification *)
+  | Pour of string * expression * expression * affectable * expression * bloc
 
 (* Structure des fonctions de Rat *)
 (* type de retour - nom - liste des paramètres (association type et nom) - corps de la fonction - valeur de retour *)
@@ -172,6 +174,7 @@ struct
     | TantQue (c,b) -> "TantQue  : TQ "^(string_of_expression c)^"\n"^
                                   "FAIRE \n"^((List.fold_right (fun i tq -> (string_of_instruction i)^tq) b ""))^"\n"
     | TypeNomme(n,t) -> "TypeNomme  : TYPE "^n^" = "^(string_of_type t)^"\n"
+    | Pour(n, v1, cond, n2, v2, b) -> "for ("^n^" = "^(string_of_expression v1)^"; "^(string_of_expression cond)^" ; "^(string_of_affectable n2)^" = "^(string_of_expression v2)^") {\n"^((List.fold_right (fun i tq -> (string_of_instruction i)^tq) b ""))^"}\n"
 
   (* Conversion des fonctions *)
   let string_of_fonction (Fonction(t,n,lp,li,e)) = (string_of_type t)^" "^n^" ("^((List.fold_right (fun (t,n) tq -> (string_of_type t)^" "^n^" "^tq) lp ""))^") = \n"^
@@ -234,6 +237,7 @@ struct
     | Affichage of expression
     | Conditionnelle of expression * bloc * bloc
     | TantQue of expression * bloc
+    | Pour of Tds.info_ast * expression * expression * affectable * expression * bloc
     | Empty (* les nœuds ayant disparus: Const, TypeNomme *)
 
 
@@ -293,6 +297,7 @@ type bloc = instruction list
   | AffichageBool of expression
   | Conditionnelle of expression * bloc * bloc
   | TantQue of expression * bloc
+  | Pour of Tds.info_ast * expression * expression * affectable * expression * bloc
   | Empty (* les nœuds ayant disparus: Const, TypeNomme *)
 
 (* nom, liste des paramètres, corps, expression de retour, informations associées à l'identificateur *)

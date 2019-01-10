@@ -158,6 +158,19 @@ let rec analyse_type_instruction i =
     let (te, ea) = analyse_type_expression e in
       if te = Bool then TantQue(ea, analyse_type_bloc b)
       else raise (TypeInattendu (te, Bool))
+  | AstTds.Pour(ia, v1, cond, af, v2, blc) ->
+      modifier_type_info Int ia;
+      let (t_v1, nv1) = analyse_type_expression v1 in
+        if t_v1 = Int then
+          let (t_cond, ncond) = analyse_type_expression cond in
+            if t_cond = Bool then
+              let (t_af, naf) = analyse_type_affectable af
+              and (t_v2, nv2) =  analyse_type_expression v2 in
+                if est_compatible t_af t_v2 then
+                  Pour(ia, nv1, ncond, naf, nv2, analyse_type_bloc blc)
+                else raise (TypeInattendu(t_v2, t_af))
+            else raise (TypeInattendu (t_cond, Bool))
+        else raise (TypeInattendu (t_v1, Int))
   | AstTds.Empty -> Empty
 
 

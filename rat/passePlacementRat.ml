@@ -32,6 +32,9 @@ let rec analyse_placement_instruction dp reg i =
   | AstType.TantQue(_,b) ->
       let _ = analyse_placement_bloc dp reg b in
       dp
+  | AstType.Pour(ia, _, _, _, _, blc) ->
+      let _ = modifier_adresse_info dp reg ia and _ = analyse_placement_bloc (dp+1) reg blc in
+      dp
   | _ -> dp
 
 

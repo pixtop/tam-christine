@@ -35,3 +35,6 @@ let%test_unit "testDeclaration3"=
     in raise ErreurNonDetectee
   with
   | IdentifiantNonDeclare ("Couple") -> ()
+
+let%test_unit "testDeclaration4"=
+  let _ = compiler "../../../fichiersRat/src-rat-typenomme-test/testDeclaration4.rat" in ()

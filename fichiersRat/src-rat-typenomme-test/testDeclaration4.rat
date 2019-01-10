@@ -1,0 +1,8 @@
+main {
+  type Int = int;
+  type Int2 = Int;
+  type Int3 = Int2;
+  type Int4 = Int3;
+  type Int5 = Int4;
+  Int4 a = 1;
+}

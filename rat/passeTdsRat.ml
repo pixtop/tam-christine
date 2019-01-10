@@ -190,6 +190,16 @@ let rec analyse_tds_instruction tds i =
         Empty
       | Some _ -> raise (DoubleDeclaration n)
     end
+  | AstSyntax.Pour(n, v1, cond, a, v2, blc) ->
+      let tdsblc = creerTDSFille tds and ia = info_to_info_ast(InfoVar (Undefined, 0, "")) in
+        ajouter tdsblc n ia;
+        let na = analyse_tds_affectable true tdsblc a
+        and nv1 = analyse_tds_expression tds v1
+        and ncond = analyse_tds_expression tdsblc cond
+        and nv2 = analyse_tds_expression tdsblc v2
+        and nblc = List.map (analyse_tds_instruction tdsblc) blc in
+          Pour(ia, nv1, ncond, na, nv2, nblc)
+
 
 
 (* analyse_tds_bloc : AstSyntax.bloc -> Asttds.bloc *)

@@ -1,0 +1,8 @@
+main {
+  int i = 2;
+  int* pt = null;
+  for (int i = 0; (i < 2); pt = 1)
+  {
+    print i;
+  }
+}

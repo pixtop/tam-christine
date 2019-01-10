@@ -40,6 +40,7 @@ open Ast.AstSyntax
 %token NULL
 %token AND
 %token NTYPE
+%token FOR
 %token EOF
 
 (* Type de l'attribut synthétisé des non-terminaux *)
@@ -81,6 +82,7 @@ i :
 | IF exp=e li1=bloc ELSE li2=bloc   {Conditionnelle (exp,li1,li2)}
 | WHILE exp=e li=bloc               {TantQue (exp,li)}
 | NTYPE tid=TID EQUAL t=typ PV      {TypeNomme (tid,t)}
+| FOR PO INT id=ID EQUAL start=e PV cond=e PV a=af EQUAL more=e PF blc=bloc {Pour(id, start, cond, a, more, blc)}
 
 dp :
 |                         {[]}
