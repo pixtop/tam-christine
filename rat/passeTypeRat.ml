@@ -182,7 +182,7 @@ let analyse_type_fonction (AstTds.Fonction(typ, n, params, b, e, ai)) =
     match info_ast_to_info ai with
     | InfoFun (_,lt,_) ->
       if lt = [] then modifier_type_fonction_info typ ltp ai
-      else if ltp != lt then raise (ImplantationNonCompatibleDeclaration n)
+      else if not (est_compatible_list ltp lt) then raise (ImplantationNonCompatibleDeclaration n)
     | _ -> raise ErreurInattendue
   in List.iter (fun (t,ai) -> modifier_type_info t ai) params;
   let blck = List.map analyse_type_instruction b in
