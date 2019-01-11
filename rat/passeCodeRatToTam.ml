@@ -93,7 +93,7 @@ and analyse_code_expression e =
           | Inf ->      ea1 ^ ea2 ^ "SUBR ILss\n"
         end
     | AstType.Acces af -> analyse_code_affectable_d af
-    | AstType.Vide -> "SUBR MVoid\n"
+    | AstType.Vide -> "LOADL 0\n"
     | AstType.Adresse ia ->
       begin
         match info_ast_to_info ia with
