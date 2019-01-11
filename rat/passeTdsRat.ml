@@ -274,7 +274,7 @@ let analyser (AstSyntax.Programme (definitions1,prog,definitions2)) =
   let mainTds = creerTDSMere () in
     let fcts1 = List.fold_left (analyse_tds_definition mainTds) [] definitions1
     and fcts2 = List.fold_left (analyse_tds_definition mainTds) [] definitions2 in
-    let fcts = fcts1@fcts2 in
+    let fcts = List.rev_append fcts1 fcts2 in
       let blc = analyse_tds_bloc mainTds prog in Programme(fcts, blc);;
 
 end
