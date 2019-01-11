@@ -1,0 +1,16 @@
+int swap ((int *) a (int *) b) {
+  (int *) valeur = null;
+  valeur = (new int);
+  (*valeur) = (*a);
+  (*a) = (*b);
+  (*b) = (*valeur);
+  return 1;
+}
+
+testFonctionPt {
+  int a = 1;
+  int b = 0;
+  int r = call swap (&a &b);
+  print a;
+  print b;
+}

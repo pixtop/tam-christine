@@ -77,6 +77,10 @@ let%test_unit "testUtilisation1" =
 let%test_unit "testUtilisation2" =
   let _ = compiler "../../../fichiersRat/src-rat-pointeur-test/testUtilisation2.rat" in ()
 
-let%expect_test "testDoublePonteur" =
+let%expect_test "testDoublePointeur" =
   runtam "../../../fichiersRat/src-rat-pointeur-test/testDoublePointeur.rat";
   [%expect{| [1/2] |}]
+
+let%expect_test "testFonctionPt" =
+  runtam "../../../fichiersRat/src-rat-pointeur-test/testFonctionPt.rat";
+  [%expect{| 01 |}]
