@@ -55,10 +55,11 @@ and analyse_type_expression e =
     let (typargs, targs) = List.split (List.map analyse_type_expression args) in
       begin
       match info_ast_to_info ia with
-      | InfoFun(typfun, typlist) ->
-        if est_compatible_list typargs typlist then
-          (typfun, AppelFonction(n, targs, ia))
-        else raise (TypesParametresInattendus(typargs, typlist))
+      | InfoFun(typfun, typlist, impl) ->
+        if not impl then raise (FonctionDeclareeNonImplantee n)
+        else if est_compatible_list typargs typlist then
+            (typfun, AppelFonction(n, targs, ia))
+        else raise (TypesParametresInattendus(typargs,typlist))
       | _ -> raise ErreurInattendue
       end
   | AstTds.Rationnel(e1, e2) ->
@@ -190,13 +191,18 @@ and analyse_type_bloc b =
 en une fonction de type Asttype.fonction *)
 (* Erreur si mauvaise utilisation des types *)
 let analyse_type_fonction (AstTds.Fonction(typ, n, params, b, e, ai)) =
-    modifier_type_fonction_info typ (List.map (fun (t,_) -> t) params) ai;
-    List.iter (fun (t,ai) -> modifier_type_info t ai) params;
-    let blck = List.map analyse_type_instruction b in
-      let (te,ea) = analyse_type_expression e in
-        if typ = te then
-          Fonction(n, List.map (fun (_,ai) -> ai) params, blck, ea, ai)
-          else raise (TypeInattendu(te, typ))
+  let ltp,_ = List.split params in let _ =
+    match info_ast_to_info ai with
+    | InfoFun (_,lt,_) ->
+      if lt = [] then modifier_type_fonction_info typ ltp ai
+      else if not (est_compatible_list ltp lt) then raise (ImplantationNonCompatibleDeclaration n)
+    | _ -> raise ErreurInattendue
+  in List.iter (fun (t,ai) -> modifier_type_info t ai) params;
+  let blck = List.map analyse_type_instruction b in
+    let (te,ea) = analyse_type_expression e in
+      if typ = te then
+        let _,lai = List.split params in Fonction(n, lai, blck, ea, ai)
+      else raise (TypeInattendu(te, typ))
 
 
 (* analyser : Asttds.ast -> Asttype.ast *)

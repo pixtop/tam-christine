@@ -60,7 +60,7 @@ let rec analyse_tds_affectable gauche tds af =
           raise (MauvaiseUtilisationIdentifiant n)
         else
         match info_ast_to_info info_ast with
-        | InfoFun (_,_) -> raise (MauvaiseUtilisationIdentifiant n)
+        | InfoFun (_,_,_) -> raise (MauvaiseUtilisationIdentifiant n)
         | _ -> Ident(info_ast)
     end
 
@@ -79,8 +79,8 @@ and analyse_tds_expression tds e =
         | Some ia ->
           begin
           match (info_ast_to_info ia) with
-          | InfoFun(_, _) ->
-              AppelFonction(n, List.map (analyse_tds_expression tds) args , ia)
+          | InfoFun(_, _, _) ->
+              AppelFonction(n, List.map (analyse_tds_expression tds) args, ia)
           | _ -> raise (MauvaiseUtilisationIdentifiant n)
           end
       end
@@ -185,10 +185,10 @@ let rec analyse_tds_instruction tds i =
   | AstSyntax.TypeNomme (n, t) ->
     begin
       match chercherLocalement tds n with
+      | Some _ -> raise (DoubleDeclaration n)
       | None ->
         ajouter tds n (info_to_info_ast (InfoTyp (analyse_tds_type tds t)));
         Empty
-      | Some _ -> raise (DoubleDeclaration n)
     end
   | AstSyntax.Pour(n, v1, cond, a, v2, blc) ->
       let tdsblc = creerTDSFille tds and ia = info_to_info_ast(InfoVar (Undefined, 0, "")) in
@@ -223,22 +223,56 @@ and analyse_tds_bloc tds li =
 (* Vérifie la bonne utilisation des identifiants et tranforme la fonction
 en une fonction de type Asttds.fonction *)
 (* Erreur si mauvaise utilisation des identifiants *)
-let analyse_tds_fonction maintds (AstSyntax.Fonction(t,n,lp,li,e))  =
-    match chercherLocalement maintds n with
-      | Some _ -> raise (DoubleDeclaration n)
-      | None -> let tds = creerTDSFille maintds in
-      let fill (t,s) =
-        match chercherLocalement tds s with
-        | Some _ -> raise (DoubleDeclaration s)
-        | None -> let lia = info_to_info_ast (InfoVar(Undefined, 0, "")) in ajouter tds s lia;
-                  (analyse_tds_type tds t,lia)
+let analyse_tds_fonction maintds t n lp li e ia =
+  let tds = creerTDSFille maintds in
+    let fill (t,s) =
+      match chercherLocalement tds s with
+      | Some _ -> raise (DoubleDeclaration s)
+      | None -> let lia = info_to_info_ast (InfoVar(Undefined, 0, "")) in ajouter tds s lia;
+                (analyse_tds_type tds t,lia)
     in
       let args_list = List.map fill lp in
-        let ia = info_to_info_ast (InfoFun(Undefined, [])) in ajouter maintds n ia;
-          let blc = List.map (analyse_tds_instruction tds) li in
-            let ret = analyse_tds_expression tds e in
-              let nt = analyse_tds_type tds t in
-                Fonction(nt, n, args_list, blc, ret, ia)
+        let blc = List.map (analyse_tds_instruction tds) li in
+          let ret = analyse_tds_expression tds e in
+            let nt = analyse_tds_type tds t in
+              Fonction(nt, n, args_list, blc, ret, ia)
+
+
+let analyse_tds_definition maintds ld d =
+  match d with
+  | AstSyntax.Prototype (t,n,lp) ->
+    begin
+    match chercherLocalement maintds n with
+    | Some _ -> raise (DoubleDeclaration n)
+    | None ->
+      let lt,_ = List.split lp in
+        let lta = List.map (analyse_tds_type maintds) lt in
+        ajouter maintds n (info_to_info_ast (InfoFun (analyse_tds_type maintds t,lta,false)));
+        ld
+    end
+  | AstSyntax.TypeDefini (n,t) ->
+    begin
+    match chercherLocalement maintds n with
+    | Some _ -> raise (DoubleDeclaration n)
+    | None ->
+      ajouter maintds n (info_to_info_ast (InfoTyp (analyse_tds_type maintds t)));
+      ld
+    end
+  | AstSyntax.Fonction (t,n,lp,li,e) ->
+    begin
+    match chercherLocalement maintds n with
+    | Some ia ->
+      begin
+        match info_ast_to_info ia with
+        | InfoFun(_,_,impl) ->
+          if impl then raise (DoubleDeclaration n)
+          else modifier_impl_fonction_info true ia;
+          (analyse_tds_fonction maintds t n lp li e ia)::ld
+        | _ -> raise ErreurInattendue
+      end
+    | None -> let ia = info_to_info_ast (InfoFun(Undefined, [], true)) in ajouter maintds n ia;
+      (analyse_tds_fonction maintds t n lp li e ia)::ld
+    end
 
 
 (* analyser : AstSyntax.ast -> Asttds.ast *)
@@ -246,9 +280,11 @@ let analyse_tds_fonction maintds (AstSyntax.Fonction(t,n,lp,li,e))  =
 (* Vérifie la bonne utilisation des identifiants et tranforme le programme
 en un programme de type Asttds.ast *)
 (* Erreur si mauvaise utilisation des identifiants *)
-let analyser (AstSyntax.Programme (fonctions,prog)) =
+let analyser (AstSyntax.Programme (definitions1,prog,definitions2)) =
   let mainTds = creerTDSMere () in
-    let fcts = List.map (analyse_tds_fonction mainTds) fonctions in
+    let fcts1 = List.fold_left (analyse_tds_definition mainTds) [] definitions1
+    and fcts2 = List.fold_left (analyse_tds_definition mainTds) [] definitions2 in
+    let fcts = List.rev_append fcts1 fcts2 in
       let blc = analyse_tds_bloc mainTds prog in Programme(fcts, blc);;
 
 end

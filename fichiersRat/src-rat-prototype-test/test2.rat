@@ -1,0 +1,10 @@
+type PInt = int *;
+PInt valeur (bool p PInt a PInt b);
+
+prog {
+  const t = 5;
+  PInt[] tab = (new PInt[t]);
+  bool pair = true;
+  int a = 0;
+  int b = 1;
+}

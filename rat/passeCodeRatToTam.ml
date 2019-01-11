@@ -149,7 +149,7 @@ and analyse_code_bloc blc =
 
 let analyse_code_fonction (Fonction(n, blc, ret_exp, ia)) =
   match info_ast_to_info ia with
-    | InfoFun(ret, args) ->
+    | InfoFun(ret, args, _) ->
       let ret_size = getTaille ret
       and args_size = List.fold_left sumTaille 0 args
       and (blc_str, blc_pop) = analyse_code_bloc blc in
