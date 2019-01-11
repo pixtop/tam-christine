@@ -57,10 +57,9 @@ and analyse_type_expression e =
       match info_ast_to_info ia with
       | InfoFun(typfun, typlist, impl) ->
         if not impl then raise (FonctionDeclareeNonImplantee n)
-        else
-          if est_compatible_list typargs typlist then
+        else if est_compatible_list typargs typlist then
             (typfun, AppelFonction(n, targs, ia))
-          else raise (TypesParametresInattendus(typargs, typlist))
+        else raise (TypesParametresInattendus(typargs,typlist))
       | _ -> raise ErreurInattendue
       end
   | AstTds.Rationnel(e1, e2) ->
