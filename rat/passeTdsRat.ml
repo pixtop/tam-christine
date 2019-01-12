@@ -64,6 +64,7 @@ let rec analyse_tds_affectable gauche tds af =
         | _ -> Ident(info_ast)
     end
 
+
 (* analyse_tds_expression : tds -> AstSyntax.ast -> Asttds.expression *)
 (* Paramètre tds : la table des symboles courante *)
 (* Paramètre e : l'expression à analyser *)
@@ -201,7 +202,6 @@ let rec analyse_tds_instruction tds i =
           Pour(ia, nv1, ncond, na, nv2, nblc)
 
 
-
 (* analyse_tds_bloc : AstSyntax.bloc -> Asttds.bloc *)
 (* Paramètre tds : la table des symboles courante *)
 (* Paramètre li : liste d'instructions à analyser *)
@@ -219,7 +219,7 @@ and analyse_tds_bloc tds li =
 
 (* analyse_tds_fonction : AstSyntax.fonction -> Asttds.fonction *)
 (* Paramètre tds : la table des symboles courante *)
-(* Paramètre : la fonction à analyser *)
+(* Paramètre : les paramètres de la fonction à analyser *)
 (* Vérifie la bonne utilisation des identifiants et tranforme la fonction
 en une fonction de type Asttds.fonction *)
 (* Erreur si mauvaise utilisation des identifiants *)
@@ -238,7 +238,13 @@ let analyse_tds_fonction maintds t n lp li e ia =
               Fonction(nt, n, args_list, blc, ret, ia)
 
 
-let analyse_tds_definition maintds ld d =
+(* analyse_tds_definition : AstTds.fonction list -> AstSyntax.definition -> AstTds.fonction list *)
+(* Paramètre maintds : la table des symboles courante *)
+(* Paramètre : la liste des asttds.fonction et l'astsyntax.definition à analyser *)
+(* Vérifie la bonne utilisation des identifiants, analyse les définitions et supprime les
+prototypes et les types définis pour ne garder que les fonctions *)
+(* Erreur si mauvaise utilisation des identifiants *)
+let analyse_tds_definition maintds lf d =
   match d with
   | AstSyntax.Prototype (t,n,lp) ->
     begin
@@ -248,7 +254,7 @@ let analyse_tds_definition maintds ld d =
       let lt,_ = List.split lp in
         let lta = List.map (analyse_tds_type maintds) lt in
         ajouter maintds n (info_to_info_ast (InfoFun (analyse_tds_type maintds t,lta,false)));
-        ld
+        lf
     end
   | AstSyntax.TypeDefini (n,t) ->
     begin
@@ -256,7 +262,7 @@ let analyse_tds_definition maintds ld d =
     | Some _ -> raise (DoubleDeclaration n)
     | None ->
       ajouter maintds n (info_to_info_ast (InfoTyp (analyse_tds_type maintds t)));
-      ld
+      lf
     end
   | AstSyntax.Fonction (t,n,lp,li,e) ->
     begin
@@ -267,11 +273,11 @@ let analyse_tds_definition maintds ld d =
         | InfoFun(_,_,impl) ->
           if impl then raise (DoubleDeclaration n)
           else modifier_impl_fonction_info true ia;
-          (analyse_tds_fonction maintds t n lp li e ia)::ld
+          (analyse_tds_fonction maintds t n lp li e ia)::lf
         | _ -> raise ErreurInattendue
       end
     | None -> let ia = info_to_info_ast (InfoFun(Undefined, [], true)) in ajouter maintds n ia;
-      (analyse_tds_fonction maintds t n lp li e ia)::ld
+      (analyse_tds_fonction maintds t n lp li e ia)::lf
     end
 
 
@@ -284,6 +290,7 @@ let analyser (AstSyntax.Programme (definitions1,prog,definitions2)) =
   let mainTds = creerTDSMere () in
     let fcts1 = List.fold_left (analyse_tds_definition mainTds) [] definitions1
     and fcts2 = List.fold_left (analyse_tds_definition mainTds) [] definitions2 in
+    (* fold_left ajoute les premiers éléments en fin de liste, il faut donc inverse les listes *)
     let fcts = List.rev_append fcts1 fcts2 in
       let blc = analyse_tds_bloc mainTds prog in Programme(fcts, blc);;
 
