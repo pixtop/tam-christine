@@ -67,8 +67,8 @@ prog : dfs1 = dfs ID li = bloc dfs2 = dfs  {(Programme (dfs1,li,dfs2))}
 dfs :
 | {[]}
 | t=typ n=ID PO p=dp PF AO li=is RETURN exp=e PV AF d=dfs {Fonction(t,n,p,li,exp)::d}
-| t=typ n=ID PO p=dp PF PV d=dfs {Prototype(t,n,p)::d}
-| NTYPE tid=TID EQUAL t=typ PV d=dfs {TypeDefini(tid,t)::d}
+| t=typ n=ID PO p=dp PF PV d=dfs      {Prototype(t,n,p)::d}
+| NTYPE tid=TID EQUAL t=typ PV d=dfs  {TypeDefini(tid,t)::d}
 
 bloc : AO li = is AF      {li}
 
