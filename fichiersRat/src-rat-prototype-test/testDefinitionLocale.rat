@@ -1,0 +1,15 @@
+type TabInt = int [];
+
+int val (TabInt t int i);
+
+main {
+  type TabInt = int;
+  TabInt [] t = (new TabInt[3]);
+  (t[1]) = 42;
+  TabInt v = call val (t 1);
+  print v;
+}
+
+int val (TabInt t int i) {
+  return (t[i]);
+}

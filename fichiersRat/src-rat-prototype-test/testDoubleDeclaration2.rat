@@ -1,0 +1,15 @@
+type TabInt = int [];
+
+TabInt init (int i);
+
+main {
+  const a = 5;
+  TabInt t = call init (a);
+}
+
+type TabInt = int [];
+
+TabInt init (int i) {
+  TabInt t = (new int[i]);
+  return t;
+}

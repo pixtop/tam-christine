@@ -1,0 +1,15 @@
+type PtRat = rat *;
+
+PtRat init (rat a);
+
+main {
+  PtRat pa = null;
+  pa = call init ([5/2]);
+  print (*pa);
+}
+
+PtRat init (rat a) {
+  PtRat v = (new rat);
+  (*v) = a;
+  return v;
+}

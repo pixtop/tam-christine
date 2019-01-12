@@ -111,6 +111,10 @@ let%expect_test "factfuns" =
   runtam "../../../fichiersRat/src-rat-tam-test/testfuns.rat";
   [%expect{| 28 |}]
 
+let%expect_test "declbloc" =
+  runtam "../../../fichiersRat/src-rat-tam-test/test2.rat";
+  [%expect{| [4/3] |}]
+
 let%expect_test "testPt" =
   runtam "../../../fichiersRat/src-rat-pointeur-test/test.rat";
   [%expect{| 3 |}]
