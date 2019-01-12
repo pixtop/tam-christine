@@ -29,6 +29,13 @@ let%test_unit "testDoubleDeclaration2"=
   with
   | DoubleDeclaration ("TabInt") -> ()
 
+let%test_unit "testFonctionDeclareeNonImplantee"=
+  try
+    let _ = compiler "../../../fichiersRat/src-rat-prototype-test/testFonctionDeclareeNonImplantee.rat"
+    in raise ErreurNonDetectee
+  with
+  | FonctionDeclareeNonImplantee ("somme") -> ()
+
 let%expect_test "testTypeDefini"=
   runtam "../../../fichiersRat/src-rat-prototype-test/testTypeDefini.rat";
   [%expect{| [5/2] |}]
